@@ -1,4 +1,5 @@
-const API_URL = 'http://localhost:5000/api';
+const API_URL =
+  'https://barwal-box-cricket-1.onrender.com/api';
 
 const TOKEN_KEY = 'barwal_admin_token';
 const ADMIN_KEY = 'barwal_admin_data';

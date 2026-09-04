@@ -81,7 +81,7 @@ function Footer() {
             <span className="footer__label">
               EXPLORE
             </span>
-
+              
             <nav>
               {footerLinks.map((link) => (
                 <a

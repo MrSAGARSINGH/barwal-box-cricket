@@ -1,4 +1,5 @@
-const API_URL = 'http://localhost:5000/api/bookings';
+const API_URL =
+  'https://barwal-box-cricket-1.onrender.com/api/bookings';
 
 /* =========================
    CREATE BOOKING
