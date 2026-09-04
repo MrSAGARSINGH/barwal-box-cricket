@@ -1,0 +1,376 @@
+.pricing {
+  width: 100%;
+  overflow: hidden;
+  padding: 120px 0;
+  background: #0a0e0b;
+
+  &__container {
+    width: min(1280px, calc(100% - 48px));
+    max-width: 100%;
+    min-width: 0;
+    margin: 0 auto;
+  }
+
+  &__heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 50px;
+    padding-bottom: 55px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+
+    > p {
+      max-width: 390px;
+      color: #7f897f;
+      font-size: 13px;
+      line-height: 1.8;
+    }
+  }
+
+  &__eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    color: #b8ff3d;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+
+    i {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #b8ff3d;
+      box-shadow: 0 0 12px rgba(184, 255, 61, 0.7);
+    }
+  }
+
+  h2 {
+    margin-top: 18px;
+    color: #f1f4ef;
+    font-family: var(--font-heading);
+    font-size: clamp(58px, 6.5vw, 92px);
+    font-weight: 900;
+    line-height: 0.82;
+    letter-spacing: -0.025em;
+
+    span {
+      display: block;
+      color: #b8ff3d;
+    }
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    padding: 55px 0 35px;
+  }
+
+  .price-card {
+    position: relative;
+    min-width: 0;
+    padding: 28px;
+
+    overflow: hidden;
+
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+
+    background:
+      linear-gradient(
+        145deg,
+        rgba(255, 255, 255, 0.035),
+        rgba(255, 255, 255, 0.01)
+      );
+
+    transition:
+      transform 0.3s ease,
+      border-color 0.3s ease;
+
+    &:hover {
+      transform: translateY(-6px);
+      border-color: rgba(184, 255, 61, 0.25);
+    }
+
+    &--popular {
+      border-color: rgba(184, 255, 61, 0.35);
+      background:
+        radial-gradient(
+          circle at 90% 0%,
+          rgba(184, 255, 61, 0.1),
+          transparent 35%
+        ),
+        #111711;
+
+      transform: translateY(-10px);
+
+      &:hover {
+        transform: translateY(-14px);
+      }
+    }
+
+    &__popular {
+      position: absolute;
+      top: 0;
+      right: 0;
+
+      padding: 8px 13px;
+
+      border-radius: 0 0 0 9px;
+      background: #b8ff3d;
+      color: #071000;
+
+      font-size: 7px;
+      font-weight: 900;
+      letter-spacing: 0.1em;
+    }
+
+    &__top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      > span {
+        color: #4e584f;
+        font-family: var(--font-heading);
+        font-size: 15px;
+        font-weight: 800;
+      }
+    }
+
+    &__icon {
+      width: 45px;
+      height: 45px;
+
+      display: grid;
+      place-items: center;
+
+      border: 1px solid rgba(184, 255, 61, 0.18);
+      border-radius: 11px;
+
+      background: rgba(184, 255, 61, 0.05);
+      color: #b8ff3d;
+    }
+
+    h3 {
+      margin-top: 30px;
+      color: #e9eee8;
+      font-family: var(--font-heading);
+      font-size: 30px;
+      font-weight: 800;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    &__description {
+      min-height: 42px;
+      margin-top: 10px;
+
+      color: #737d74;
+      font-size: 10px;
+      line-height: 1.6;
+    }
+
+    &__price {
+      margin-top: 25px;
+      display: flex;
+      align-items: baseline;
+      gap: 7px;
+
+      strong {
+        color: #f1f5ef;
+        font-family: var(--font-heading);
+        font-size: 47px;
+        font-weight: 900;
+        line-height: 1;
+      }
+
+      span {
+        color: #687269;
+        font-size: 9px;
+      }
+    }
+
+    &__line {
+      width: 100%;
+      height: 1px;
+      margin: 25px 0;
+
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    ul {
+      display: flex;
+      flex-direction: column;
+      gap: 13px;
+      list-style: none;
+    }
+
+    li {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+
+      color: #9ba39b;
+      font-size: 10px;
+
+      svg {
+        flex: 0 0 auto;
+        color: #b8ff3d;
+      }
+    }
+
+    &__button {
+      width: 100%;
+      height: 47px;
+      margin-top: 30px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+
+      color: #dfe4df;
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+
+      transition:
+        background 0.25s ease,
+        color 0.25s ease;
+
+      &:hover {
+        background: #b8ff3d;
+        color: #071000;
+      }
+    }
+
+    &--popular &__button {
+      border-color: #b8ff3d;
+      background: #b8ff3d;
+      color: #071000;
+
+      &:hover {
+        background: #fff;
+        border-color: #fff;
+      }
+    }
+  }
+
+  &__note {
+    padding-top: 22px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+
+    span {
+      color: #586158;
+      font-size: 8px;
+      font-weight: 800;
+      letter-spacing: 0.15em;
+    }
+
+    a {
+      color: #b8ff3d;
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+    }
+  }
+}
+
+@media (max-width: 900px) {
+  .pricing {
+    padding: 90px 0;
+
+    &__grid {
+      grid-template-columns: 1fr;
+      max-width: 650px;
+      margin-inline: auto;
+    }
+
+    .price-card--popular {
+      transform: none;
+
+      &:hover {
+        transform: translateY(-6px);
+      }
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  .pricing {
+    padding: 80px 0;
+
+    &__container {
+      width: calc(100% - 28px);
+    }
+
+    &__heading {
+      display: block;
+      padding-bottom: 38px;
+
+      > p {
+        margin-top: 25px;
+        font-size: 12px;
+      }
+    }
+
+    h2 {
+      font-size: clamp(52px, 14vw, 68px);
+    }
+
+    &__grid {
+      padding-top: 38px;
+    }
+
+    .price-card {
+      padding: 22px;
+
+      &__price strong {
+        font-size: 43px;
+      }
+    }
+
+    &__note {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 12px;
+    }
+  }
+}
+
+@media (max-width: 360px) {
+  .pricing {
+    &__container {
+      width: calc(100% - 20px);
+    }
+
+    &__eyebrow {
+      font-size: 7px;
+    }
+
+    h2 {
+      font-size: 45px;
+    }
+
+    .price-card {
+      padding: 18px;
+
+      h3 {
+        font-size: 27px;
+      }
+
+      &__price strong {
+        font-size: 39px;
+      }
+    }
+  }
+}

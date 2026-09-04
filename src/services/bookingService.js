@@ -1,0 +1,144 @@
+const API_URL = 'http://localhost:5000/api/bookings';
+
+/* =========================
+   CREATE BOOKING
+========================= */
+
+export const createBooking = async (bookingData) => {
+  const response = await fetch(API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(bookingData),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data.message || 'Unable to create booking.'
+    );
+  }
+
+  return data.booking;
+};
+
+/* =========================
+   GET BOOKINGS BY DATE
+========================= */
+
+export const getBookingsByDate = async (date) => {
+  if (!date) {
+    return [];
+  }
+
+  const response = await fetch(
+    `${API_URL}/date?date=${encodeURIComponent(date)}`
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data.message || 'Unable to fetch bookings.'
+    );
+  }
+
+  return data.bookings || [];
+};
+
+/* =========================
+   CHECK SLOT
+========================= */
+
+export const isSlotBooked = async (
+  date,
+  slot
+) => {
+  const bookings =
+    await getBookingsByDate(date);
+
+  return bookings.some(
+    (booking) =>
+      booking.slot === slot &&
+      booking.status === 'confirmed'
+  );
+};
+
+/* =========================
+   CANCEL BOOKING
+========================= */
+
+export const cancelBooking = async (
+  bookingId
+) => {
+  const token =
+    sessionStorage.getItem(
+      'barwal_admin_token'
+    );
+
+  if (!token) {
+    throw new Error(
+      'Admin authentication required.'
+    );
+  }
+
+  const response = await fetch(
+    `${API_URL}/admin/${bookingId}/cancel`,
+    {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data.message ||
+        'Unable to cancel booking.'
+    );
+  }
+
+  return data.booking;
+};
+
+/* =========================
+   GET ALL BOOKINGS - ADMIN
+========================= */
+
+export const getAllBookings = async () => {
+  const token =
+    sessionStorage.getItem(
+      'barwal_admin_token'
+    );
+
+  if (!token) {
+    throw new Error(
+      'Admin authentication required.'
+    );
+  }
+
+  const response = await fetch(
+    `${API_URL}/admin/all`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data.message ||
+        'Unable to fetch bookings.'
+    );
+  }
+
+  return data.bookings || [];
+};

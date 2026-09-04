@@ -1,0 +1,240 @@
+import Booking from '../models/Booking.js';
+
+const generateBookingId = () => {
+  const timestamp = Date.now()
+    .toString()
+    .slice(-8);
+
+  const random = Math.floor(
+    100 + Math.random() * 900
+  );
+
+  return `BB-${timestamp}-${random}`;
+};
+
+/* =========================
+   CREATE BOOKING
+========================= */
+
+export const createBooking = async (
+  req,
+  res
+) => {
+  try {
+    const {
+      date,
+      slot,
+      name,
+      phone,
+    } = req.body;
+
+    if (!date || !slot || !name || !phone) {
+      return res.status(400).json({
+        success: false,
+        message:
+          'Date, slot, name and phone are required.',
+      });
+    }
+
+    const cleanName = name.trim();
+    const cleanPhone = phone.trim();
+
+    if (cleanName.length < 2) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please enter a valid name.',
+      });
+    }
+
+    if (!/^\d{10}$/.test(cleanPhone)) {
+      return res.status(400).json({
+        success: false,
+        message:
+          'Please enter a valid 10-digit phone number.',
+      });
+    }
+
+    const existingBooking =
+      await Booking.findOne({
+        date,
+        slot,
+        status: 'confirmed',
+      });
+
+    if (existingBooking) {
+      return res.status(409).json({
+        success: false,
+        message:
+          'This slot has already been booked.',
+      });
+    }
+
+    const booking =
+      await Booking.create({
+        bookingId: generateBookingId(),
+        date,
+        slot,
+        name: cleanName,
+        phone: cleanPhone,
+        status: 'confirmed',
+      });
+
+    return res.status(201).json({
+      success: true,
+      message: 'Booking created successfully.',
+      booking,
+    });
+  } catch (error) {
+    console.error(
+      'Create Booking Error:',
+      error
+    );
+
+    if (error.code === 11000) {
+      return res.status(409).json({
+        success: false,
+        message:
+          'This slot has already been booked.',
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message:
+        'Unable to create booking.',
+    });
+  }
+};
+
+/* =========================
+   GET BOOKINGS BY DATE
+========================= */
+
+export const getBookingsByDate = async (
+  req,
+  res
+) => {
+  try {
+    const { date } = req.query;
+
+    if (!date) {
+      return res.status(400).json({
+        success: false,
+        message: 'Date is required.',
+      });
+    }
+
+    const bookings =
+      await Booking.find({
+        date,
+        status: 'confirmed',
+      }).sort({
+        slot: 1,
+      });
+
+    return res.status(200).json({
+      success: true,
+      bookings,
+    });
+  } catch (error) {
+    console.error(
+      'Get Bookings Error:',
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message:
+        'Unable to fetch bookings.',
+    });
+  }
+};
+
+/* =========================
+   GET ALL BOOKINGS
+========================= */
+
+export const getAllBookings = async (
+  req,
+  res
+) => {
+  try {
+    const bookings =
+      await Booking.find().sort({
+        date: 1,
+        createdAt: -1,
+      });
+
+    return res.status(200).json({
+      success: true,
+      count: bookings.length,
+      bookings,
+    });
+  } catch (error) {
+    console.error(
+      'Get All Bookings Error:',
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message:
+        'Unable to fetch bookings.',
+    });
+  }
+};
+
+/* =========================
+   CANCEL BOOKING
+========================= */
+
+export const cancelBooking = async (
+  req,
+  res
+) => {
+  try {
+    const { id } = req.params;
+
+    const booking =
+      await Booking.findOne({
+        bookingId: id,
+      });
+
+    if (!booking) {
+      return res.status(404).json({
+        success: false,
+        message: 'Booking not found.',
+      });
+    }
+
+    if (booking.status === 'cancelled') {
+      return res.status(400).json({
+        success: false,
+        message:
+          'Booking is already cancelled.',
+      });
+    }
+
+    booking.status = 'cancelled';
+
+    await booking.save();
+
+    return res.status(200).json({
+      success: true,
+      message:
+        'Booking cancelled successfully.',
+      booking,
+    });
+  } catch (error) {
+    console.error(
+      'Cancel Booking Error:',
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message:
+        'Unable to cancel booking.',
+    });
+  }
+};
