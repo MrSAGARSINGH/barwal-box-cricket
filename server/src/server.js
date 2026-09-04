@@ -12,11 +12,17 @@ dotenv.config();
 
 const app = express();
 
+const PORT = process.env.PORT || 5000;
+
 /* =========================
-   SECURITY & MIDDLEWARE
+   SECURITY
 ========================= */
 
 app.use(helmet());
+
+/* =========================
+   CORS
+========================= */
 
 const allowedOrigins = [
   'http://localhost:5173',
@@ -26,25 +32,53 @@ const allowedOrigins = [
   'https://barwal-box-cricket.vercel.app',
 ];
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      // Postman / server-to-server requests
-      if (!origin) {
-        return callback(null, true);
-      }
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Allow Postman, curl and server-to-server requests
+    if (!origin) {
+      return callback(null, true);
+    }
 
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
 
-      return callback(
-        new Error('Not allowed by CORS')
-      );
-    },
-    credentials: true,
-  })
-);
+    console.log(`CORS blocked origin: ${origin}`);
+
+    return callback(
+      new Error('Not allowed by CORS')
+    );
+  },
+
+  credentials: true,
+
+  methods: [
+    'GET',
+    'POST',
+    'PUT',
+    'PATCH',
+    'DELETE',
+    'OPTIONS',
+  ],
+
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+  ],
+
+  optionsSuccessStatus: 204,
+};
+
+app.use(cors(corsOptions));
+
+/*
+  Explicitly handle browser preflight requests.
+*/
+app.options(/.*/, cors(corsOptions));
+
+/* =========================
+   BODY PARSER
+========================= */
 
 app.use(express.json());
 
@@ -117,9 +151,6 @@ app.use(
 /* =========================
    START SERVER
 ========================= */
-
-const PORT =
-  process.env.PORT || 5000;
 
 const startServer = async () => {
   try {
