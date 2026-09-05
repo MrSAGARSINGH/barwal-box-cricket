@@ -18,15 +18,22 @@ function useBooking() {
   const [error, setError] =
     useState('');
 
+  /* =========================
+     GET BOOKED SLOTS
+  ========================= */
+
   const getBookedSlots = useCallback(
-    async (date) => {
+    async (date, venue) => {
       if (!date) {
         return [];
       }
 
       try {
         const bookings =
-          await getBookingsByDate(date);
+          await getBookingsByDate(
+            date,
+            venue
+          );
 
         return bookings
           .filter(
@@ -47,6 +54,10 @@ function useBooking() {
     },
     []
   );
+
+  /* =========================
+     BOOK SLOT
+  ========================= */
 
   const bookSlot = async (
     bookingData

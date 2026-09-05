@@ -36,6 +36,12 @@ function Booking() {
     getBookedSlots,
   } = useBooking();
 
+  /* =========================
+     BOOKING STATE
+  ========================= */
+
+  const [venue, setVenue] = useState('box-cricket');
+
   const [date, setDate] = useState('');
   const [selectedSlot, setSelectedSlot] = useState('');
 
@@ -52,9 +58,28 @@ function Booking() {
     .toISOString()
     .split('T')[0];
 
-  /*
-   * FETCH BOOKED SLOTS FROM MONGODB
-   */
+  /* =========================
+     VENUE DETAILS
+  ========================= */
+
+  const venueDetails = {
+    'box-cricket': {
+      label: 'BOX CRICKET',
+      shortLabel: 'BOX CRICKET',
+      description: 'Premium box cricket experience',
+    },
+
+    ground: {
+      label: 'CRICKET GROUND',
+      shortLabel: 'GROUND',
+      description: 'Full ground booking experience',
+    },
+  };
+
+  /* =========================
+     FETCH BOOKED SLOTS
+  ========================= */
+
   useEffect(() => {
     let cancelled = false;
 
@@ -70,7 +95,15 @@ function Booking() {
       setSlotError('');
 
       try {
-        const result = await getBookedSlots(date);
+        /*
+         * Venue is sent along with date so that
+         * Box Cricket and Ground can have
+         * independent availability.
+         */
+        const result = await getBookedSlots(
+          date,
+          venue
+        );
 
         if (!cancelled) {
           setBookedSlots(result);
@@ -98,18 +131,44 @@ function Booking() {
     return () => {
       cancelled = true;
     };
-  }, [date, getBookedSlots]);
+  }, [date, venue, getBookedSlots]);
 
-  /*
-   * RESET SUCCESS STATE WHEN DATE CHANGES
-   */
-  useEffect(() => {
+  /* =========================
+     VENUE SWITCH
+  ========================= */
+
+  const handleVenueChange = (selectedVenue) => {
+    if (selectedVenue === venue) {
+      return;
+    }
+
+    setVenue(selectedVenue);
+
+    /*
+     * Slot availability is different
+     * for each venue.
+     */
+    setSelectedSlot('');
+    setBookedSlots([]);
+    setSlotError('');
     setSuccess(false);
-  }, [date]);
+  };
 
-  /*
-   * PHONE INPUT
-   */
+  /* =========================
+     DATE CHANGE
+  ========================= */
+
+  const handleDateChange = (event) => {
+    setDate(event.target.value);
+    setSelectedSlot('');
+    setSuccess(false);
+    setSlotError('');
+  };
+
+  /* =========================
+     PHONE INPUT
+  ========================= */
+
   const handlePhoneChange = (event) => {
     const value = event.target.value.replace(
       /\D/g,
@@ -121,19 +180,10 @@ function Booking() {
     }
   };
 
-  /*
-   * DATE CHANGE
-   */
-  const handleDateChange = (event) => {
-    setDate(event.target.value);
-    setSelectedSlot('');
-    setSuccess(false);
-    setSlotError('');
-  };
+  /* =========================
+     BOOK SLOT
+  ========================= */
 
-  /*
-   * BOOK SLOT
-   */
   const handleBooking = async (event) => {
     event.preventDefault();
 
@@ -159,41 +209,33 @@ function Booking() {
       return;
     }
 
-    /*
-     * EXTRA FRONTEND CHECK
-     * Prevent booking if slot became booked
-     * while user was filling the form.
-     */
     if (bookedSlots.includes(selectedSlot)) {
       alert(
         'This slot has already been booked. Please choose another slot.'
       );
 
       setSelectedSlot('');
+
       return;
     }
 
     const result = await bookSlot({
+      venue,
       date,
       slot: selectedSlot,
       name: name.trim(),
-
-      /*
-       * Backend expects exactly 10 digits.
-       */
       phone,
     });
 
     if (result.success) {
       setSuccess(true);
 
-      /*
-       * Refresh booked slots so the UI stays
-       * synchronized with MongoDB.
-       */
       try {
         const updatedSlots =
-          await getBookedSlots(date);
+          await getBookedSlots(
+            date,
+            venue
+          );
 
         setBookedSlots(updatedSlots);
       } catch (err) {
@@ -205,9 +247,10 @@ function Booking() {
     }
   };
 
-  /*
-   * WHATSAPP CONFIRMATION
-   */
+  /* =========================
+     WHATSAPP
+  ========================= */
+
   const handleWhatsApp = () => {
     if (!booking) return;
 
@@ -218,9 +261,10 @@ function Booking() {
     );
   };
 
-  /*
-   * RESET FORM FOR ANOTHER BOOKING
-   */
+  /* =========================
+     NEW BOOKING
+  ========================= */
+
   const handleNewBooking = () => {
     setSuccess(false);
     setSelectedSlot('');
@@ -235,7 +279,9 @@ function Booking() {
     >
       <div className="booking__container">
 
-        {/* HEADER */}
+        {/* =========================
+            HEADER
+        ========================= */}
 
         <div className="booking__heading">
           <div>
@@ -251,29 +297,37 @@ function Booking() {
           </div>
 
           <p>
-            Select your date, choose an available
-            time and reserve your game at Barwal
+            Select your game space, choose your
+            date and reserve your slot at Barwal
             Box Cricket.
           </p>
         </div>
 
-        {/* MAIN */}
+        {/* =========================
+            MAIN
+        ========================= */}
 
         <div className="booking__main">
 
-          {/* LEFT INFO */}
+          {/* =========================
+              LEFT INFO
+          ========================= */}
 
           <aside className="booking__info">
+
             <div className="booking__info-top">
               <span>01</span>
 
               <div>
                 <strong>BARWAL</strong>
-                <small>BOX CRICKET</small>
+                <small>
+                  BOX CRICKET &amp; GROUND
+                </small>
               </div>
             </div>
 
             <div className="booking__info-content">
+
               <span>READY TO PLAY?</span>
 
               <h3>
@@ -282,12 +336,14 @@ function Booking() {
               </h3>
 
               <p>
-                Choose your preferred slot and get
-                your squad ready for the game.
+                Choose your game space and preferred
+                slot. Get your squad ready for the game.
               </p>
+
             </div>
 
             <div className="booking__info-list">
+
               <div>
                 <Clock3 size={17} />
 
@@ -310,28 +366,139 @@ function Booking() {
                 <ShieldCheck size={17} />
 
                 <span>
-                  <strong>QUICK BOOKING</strong>
-                  Simple slot selection
+                  <strong>
+                    {venueDetails[venue].label}
+                  </strong>
+
+                  {venueDetails[venue].description}
                 </span>
               </div>
+
             </div>
+
           </aside>
 
-          {/* BOOKING FORM */}
+          {/* =========================
+              BOOKING FORM
+          ========================= */}
 
           <form
             className="booking__form"
             onSubmit={handleBooking}
           >
 
-            {/* DATE */}
+            {/* =========================
+                VENUE SWITCH
+            ========================= */}
+
+            <div className="booking__venue">
+
+              <div className="booking__venue-head">
+                <div className="booking__section-head">
+                  <span>01</span>
+
+                  <div>
+                    <strong>
+                      CHOOSE GAME SPACE
+                    </strong>
+
+                    <small>
+                      Select what you want to book
+                    </small>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                className="booking__venue-switch"
+                role="tablist"
+                aria-label="Choose game space"
+              >
+
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={
+                    venue === 'box-cricket'
+                  }
+                  className={
+                    venue === 'box-cricket'
+                      ? 'booking__venue-option booking__venue-option--active'
+                      : 'booking__venue-option'
+                  }
+                  onClick={() =>
+                    handleVenueChange(
+                      'box-cricket'
+                    )
+                  }
+                >
+                  <span className="booking__venue-icon">
+                    🏏
+                  </span>
+
+                  <span>
+                    <strong>BOX CRICKET</strong>
+                    <small>
+                      Premium box cricket
+                    </small>
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={
+                    venue === 'ground'
+                  }
+                  className={
+                    venue === 'ground'
+                      ? 'booking__venue-option booking__venue-option--active'
+                      : 'booking__venue-option'
+                  }
+                  onClick={() =>
+                    handleVenueChange(
+                      'ground'
+                    )
+                  }
+                >
+                  <span className="booking__venue-icon">
+                    🏟️
+                  </span>
+
+                  <span>
+                    <strong>CRICKET GROUND</strong>
+                    <small>
+                      Full ground booking
+                    </small>
+                  </span>
+                </button>
+
+                <span
+                  className={`booking__venue-slider ${
+                    venue === 'ground'
+                      ? 'booking__venue-slider--ground'
+                      : ''
+                  }`}
+                />
+
+              </div>
+
+            </div>
+
+            {/* =========================
+                DATE
+            ========================= */}
 
             <div className="booking__section">
+
               <div className="booking__section-head">
-                <span>01</span>
+                <span>02</span>
 
                 <div>
-                  <strong>SELECT DATE</strong>
+                  <strong>
+                    SELECT DATE
+                  </strong>
+
                   <small>
                     Choose your game day
                   </small>
@@ -339,6 +506,7 @@ function Booking() {
               </div>
 
               <label className="booking__date">
+
                 <CalendarDays size={18} />
 
                 <input
@@ -348,17 +516,24 @@ function Booking() {
                   onChange={handleDateChange}
                   required
                 />
+
               </label>
+
             </div>
 
-            {/* SLOTS */}
+            {/* =========================
+                SLOTS
+            ========================= */}
 
             <div className="booking__section">
+
               <div className="booking__section-head">
-                <span>02</span>
+                <span>03</span>
 
                 <div>
-                  <strong>SELECT SLOT</strong>
+                  <strong>
+                    SELECT SLOT
+                  </strong>
 
                   <small>
                     {!date
@@ -377,7 +552,9 @@ function Booking() {
               )}
 
               <div className="booking__slots">
+
                 {slots.map((slot) => {
+
                   const isBooked =
                     bookedSlots.includes(slot);
 
@@ -408,30 +585,46 @@ function Booking() {
                         setSelectedSlot(slot)
                       }
                     >
-                      <span>{slot}</span>
+
+                      <span>
+                        {slot}
+                      </span>
 
                       {isBooked && (
-                        <small>BOOKED</small>
+                        <small>
+                          BOOKED
+                        </small>
                       )}
 
                       {!isBooked &&
                         selectedSlot === slot && (
-                          <small>SELECTED</small>
+                          <small>
+                            SELECTED
+                          </small>
                         )}
+
                     </button>
                   );
                 })}
+
               </div>
+
             </div>
 
-            {/* DETAILS */}
+            {/* =========================
+                DETAILS
+            ========================= */}
 
             <div className="booking__section">
+
               <div className="booking__section-head">
-                <span>03</span>
+                <span>04</span>
 
                 <div>
-                  <strong>YOUR DETAILS</strong>
+                  <strong>
+                    YOUR DETAILS
+                  </strong>
+
                   <small>
                     Used for booking confirmation
                   </small>
@@ -441,6 +634,7 @@ function Booking() {
               <div className="booking__fields">
 
                 <label>
+
                   <UserRound size={16} />
 
                   <input
@@ -448,15 +642,19 @@ function Booking() {
                     placeholder="Your full name"
                     value={name}
                     onChange={(event) =>
-                      setName(event.target.value)
+                      setName(
+                        event.target.value
+                      )
                     }
                     maxLength={50}
                     autoComplete="name"
                     required
                   />
+
                 </label>
 
                 <label>
+
                   <span className="booking__country">
                     +91
                   </span>
@@ -471,12 +669,16 @@ function Booking() {
                     autoComplete="tel"
                     required
                   />
+
                 </label>
 
               </div>
+
             </div>
 
-            {/* API ERROR */}
+            {/* =========================
+                API ERROR
+            ========================= */}
 
             {error && (
               <div className="booking__error">
@@ -484,9 +686,12 @@ function Booking() {
               </div>
             )}
 
-            {/* SUBMIT / SUCCESS */}
+            {/* =========================
+                SUBMIT / SUCCESS
+            ========================= */}
 
             {!success ? (
+
               <button
                 type="submit"
                 className="booking__submit"
@@ -497,6 +702,7 @@ function Booking() {
                   !selectedSlot
                 }
               >
+
                 {loading ? (
                   <>
                     CONFIRMING...
@@ -504,12 +710,15 @@ function Booking() {
                   </>
                 ) : (
                   <>
-                    CHECK & BOOK SLOT
+                    CHECK &amp; BOOK SLOT
                     <ArrowRight size={18} />
                   </>
                 )}
+
               </button>
+
             ) : (
+
               <div className="booking__success">
 
                 <div className="booking__success-icon">
@@ -517,6 +726,7 @@ function Booking() {
                 </div>
 
                 <div>
+
                   <strong>
                     BOOKING CREATED
                   </strong>
@@ -530,6 +740,7 @@ function Booking() {
                     {booking?.date} ·{' '}
                     {booking?.slot}
                   </small>
+
                 </div>
 
                 <button
@@ -549,28 +760,40 @@ function Booking() {
                 </button>
 
               </div>
+
             )}
 
           </form>
+
         </div>
 
-        {/* FOOTER */}
+        {/* =========================
+            FOOTER
+        ========================= */}
 
         <div className="booking__bottom">
+
           <div>
             <CheckCircle2 size={15} />
-            <span>INSTANT SLOT CHECK</span>
+            <span>
+              INSTANT SLOT CHECK
+            </span>
           </div>
 
           <div>
             <ShieldCheck size={15} />
-            <span>SAFE BOOKING</span>
+            <span>
+              SAFE BOOKING
+            </span>
           </div>
 
           <div>
             <MessageCircle size={15} />
-            <span>WHATSAPP CONFIRMATION</span>
+            <span>
+              WHATSAPP CONFIRMATION
+            </span>
           </div>
+
         </div>
 
       </div>

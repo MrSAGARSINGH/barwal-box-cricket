@@ -12,6 +12,8 @@ const generateBookingId = () => {
   return `BB-${timestamp}-${random}`;
 };
 
+const VALID_VENUES = ['box-cricket', 'ground'];
+
 /* =========================
    CREATE BOOKING
 ========================= */
@@ -22,17 +24,32 @@ export const createBooking = async (
 ) => {
   try {
     const {
+      venue,
       date,
       slot,
       name,
       phone,
     } = req.body;
 
-    if (!date || !slot || !name || !phone) {
+    if (
+      !venue ||
+      !date ||
+      !slot ||
+      !name ||
+      !phone
+    ) {
       return res.status(400).json({
         success: false,
         message:
-          'Date, slot, name and phone are required.',
+          'Venue, date, slot, name and phone are required.',
+      });
+    }
+
+    if (!VALID_VENUES.includes(venue)) {
+      return res.status(400).json({
+        success: false,
+        message:
+          'Please select a valid booking venue.',
       });
     }
 
@@ -56,6 +73,7 @@ export const createBooking = async (
 
     const existingBooking =
       await Booking.findOne({
+        venue,
         date,
         slot,
         status: 'confirmed',
@@ -65,13 +83,14 @@ export const createBooking = async (
       return res.status(409).json({
         success: false,
         message:
-          'This slot has already been booked.',
+          'This slot has already been booked for the selected venue.',
       });
     }
 
     const booking =
       await Booking.create({
         bookingId: generateBookingId(),
+        venue,
         date,
         slot,
         name: cleanName,
@@ -94,7 +113,7 @@ export const createBooking = async (
       return res.status(409).json({
         success: false,
         message:
-          'This slot has already been booked.',
+          'This slot has already been booked for the selected venue.',
       });
     }
 
@@ -115,7 +134,10 @@ export const getBookingsByDate = async (
   res
 ) => {
   try {
-    const { date } = req.query;
+    const {
+      date,
+      venue,
+    } = req.query;
 
     if (!date) {
       return res.status(400).json({
@@ -124,11 +146,30 @@ export const getBookingsByDate = async (
       });
     }
 
+    if (
+      venue &&
+      !VALID_VENUES.includes(venue)
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          'Please provide a valid booking venue.',
+      });
+    }
+
+    const query = {
+      date,
+      status: 'confirmed',
+    };
+
+    // If venue is provided, return bookings
+    // only for that venue.
+    if (venue) {
+      query.venue = venue;
+    }
+
     const bookings =
-      await Booking.find({
-        date,
-        status: 'confirmed',
-      }).sort({
+      await Booking.find(query).sort({
         slot: 1,
       });
 

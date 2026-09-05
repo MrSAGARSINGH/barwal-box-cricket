@@ -4,28 +4,64 @@
   z-index: 1000;
 
   width: 100%;
+
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 
-  background: rgba(7, 10, 8, 0.78);
+  background: rgba(7, 10, 8, 0.82);
+
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
+
+  animation: navbarReveal 0.7s ease both;
 
   &__inner {
     width: min(1280px, calc(100% - 48px));
     min-height: 78px;
+
     margin-inline: auto;
 
     display: flex;
     align-items: center;
+
     gap: 32px;
   }
 
-  // BRAND
+  /* ============================================
+     BRAND
+  ============================================ */
+
   &__brand {
-    display: flex;
+    position: relative;
+
+    display: inline-flex;
     align-items: center;
+
     gap: 10px;
+
     flex-shrink: 0;
+
+    animation: brandReveal 0.8s
+      cubic-bezier(0.22, 1, 0.36, 1)
+      0.15s both;
+
+    &:hover {
+      .navbar__mark {
+        transform: skew(-6deg) rotate(-4deg)
+          scale(1.05);
+
+        box-shadow:
+          0 0 0 5px rgba(184, 255, 61, 0.08),
+          0 10px 28px rgba(184, 255, 61, 0.16);
+      }
+
+      .navbar__name strong {
+        letter-spacing: 0.09em;
+      }
+
+      .navbar__name small {
+        letter-spacing: 0.24em;
+      }
+    }
   }
 
   &__mark {
@@ -45,6 +81,14 @@
     font-weight: 900;
 
     transform: skew(-6deg);
+
+    box-shadow:
+      0 0 0 0 rgba(184, 255, 61, 0),
+      0 6px 18px rgba(184, 255, 61, 0.08);
+
+    transition:
+      transform 0.35s ease,
+      box-shadow 0.35s ease;
   }
 
   &__name {
@@ -53,12 +97,19 @@
 
     line-height: 0.9;
 
+    overflow: hidden;
+
     strong {
       color: #fff;
 
       font-family: 'Barlow Condensed', sans-serif;
       font-size: 18px;
+      font-weight: 900;
+
       letter-spacing: 0.06em;
+
+      transition:
+        letter-spacing 0.35s ease;
     }
 
     small {
@@ -68,16 +119,29 @@
 
       font-size: 8px;
       font-weight: 800;
+
       letter-spacing: 0.2em;
+      white-space: nowrap;
+
+      transition:
+        letter-spacing 0.35s ease;
+
+      animation: subtitleReveal 0.7s
+        cubic-bezier(0.22, 1, 0.36, 1)
+        0.55s both;
     }
   }
 
-  // DESKTOP LINKS
+  /* ============================================
+     DESKTOP LINKS
+  ============================================ */
+
   &__links {
     margin-left: auto;
 
     display: flex;
     align-items: center;
+
     gap: 28px;
 
     a {
@@ -90,12 +154,22 @@
       font-size: 12px;
       font-weight: 600;
 
-      transition: color 0.25s ease;
+      opacity: 0;
+
+      animation: navLinkReveal 0.5s
+        cubic-bezier(0.22, 1, 0.36, 1)
+        calc(0.25s + var(--nav-index) * 0.06s)
+        forwards;
+
+      transition:
+        color 0.25s ease,
+        transform 0.25s ease;
 
       &::after {
         content: '';
 
         position: absolute;
+
         left: 50%;
         bottom: 0;
 
@@ -103,30 +177,48 @@
         height: 2px;
 
         background: #b8ff3d;
+
         border-radius: 10px;
 
-        transform: translateX(-50%);
-        transition: width 0.25s ease;
+        transform:
+          translateX(-50%)
+          scaleX(0.5);
+
+        transform-origin: center;
+
+        transition:
+          width 0.3s ease,
+          transform 0.3s ease;
       }
 
       &:hover {
         color: #fff;
 
+        transform: translateY(-1px);
+
         &::after {
           width: 100%;
+          transform:
+            translateX(-50%)
+            scaleX(1);
         }
       }
     }
   }
 
-  // CTA
+  /* ============================================
+     DESKTOP CTA
+  ============================================ */
+
   &__cta {
     min-height: 44px;
+
     padding: 0 19px;
 
     display: inline-flex;
     align-items: center;
     justify-content: center;
+
     gap: 8px;
 
     border-radius: 999px;
@@ -139,17 +231,45 @@
 
     flex-shrink: 0;
 
+    opacity: 0;
+
+    animation: ctaReveal 0.6s
+      cubic-bezier(0.22, 1, 0.36, 1)
+      0.55s forwards;
+
     transition:
       transform 0.25s ease,
-      background 0.25s ease;
+      background 0.25s ease,
+      box-shadow 0.25s ease;
+
+    svg {
+      transition:
+        transform 0.25s ease;
+    }
 
     &:hover {
       transform: translateY(-2px);
+
       background: #fff;
+
+      box-shadow:
+        0 8px 24px rgba(255, 255, 255, 0.08);
+
+      svg {
+        transform: rotate(-8deg)
+          translateY(-1px);
+      }
+    }
+
+    &:active {
+      transform: translateY(0);
     }
   }
 
-  // MOBILE BUTTON
+  /* ============================================
+     MOBILE BUTTON
+  ============================================ */
+
   &__menu {
     display: none;
 
@@ -163,28 +283,64 @@
     border-radius: 10px;
 
     background: rgba(255, 255, 255, 0.05);
+
     color: #fff;
+
+    flex-shrink: 0;
+
+    transition:
+      background 0.25s ease,
+      border-color 0.25s ease,
+      transform 0.25s ease;
+
+    &:hover {
+      border-color: rgba(184, 255, 61, 0.35);
+
+      background: rgba(184, 255, 61, 0.08);
+
+      color: #b8ff3d;
+
+      transform: translateY(-1px);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
   }
 
-  // MOBILE MENU
+  &__menu-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    animation: menuIconReveal 0.25s ease both;
+  }
+
+  /* ============================================
+     MOBILE MENU
+  ============================================ */
+
   &__mobile {
     display: none;
   }
 }
 
-
-// ============================================
-// TABLET
-// ============================================
+/* ================================================
+   TABLET
+================================================ */
 
 @media (max-width: 900px) {
   .navbar {
-    &__links {
-      gap: 16px;
+    &__inner {
+      gap: 20px;
     }
 
-    &__links a {
-      font-size: 11px;
+    &__links {
+      gap: 16px;
+
+      a {
+        font-size: 11px;
+      }
     }
 
     &__cta {
@@ -193,10 +349,9 @@
   }
 }
 
-
-// ============================================
-// MOBILE
-// ============================================
+/* ================================================
+   MOBILE
+================================================ */
 
 @media (max-width: 760px) {
   .navbar {
@@ -215,26 +370,57 @@
       margin-left: auto;
     }
 
+    /* =========================
+       MOBILE DROPDOWN
+    ========================= */
+
     &__mobile {
       display: block;
 
       max-height: 0;
+
       overflow: hidden;
 
       background: rgba(7, 10, 8, 0.98);
 
       border-top: 1px solid transparent;
 
+      opacity: 0;
+
+      transform: translateY(-8px);
+
       transition:
-        max-height 0.35s ease,
+        max-height 0.45s
+          cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 0.3s ease,
+        transform 0.35s ease,
         border-color 0.3s ease;
     }
 
-    &--open &__mobile {
-      max-height: 500px;
+    &--open {
+      .navbar__mobile {
+        max-height: 560px;
 
-      border-top-color: rgba(255, 255, 255, 0.08);
+        border-top-color:
+          rgba(255, 255, 255, 0.08);
+
+        opacity: 1;
+
+        transform: translateY(0);
+      }
+
+      .navbar__menu {
+        border-color:
+          rgba(184, 255, 61, 0.25);
+
+        background:
+          rgba(184, 255, 61, 0.08);
+      }
     }
+
+    /* =========================
+       MOBILE LINKS
+    ========================= */
 
     &__mobile nav {
       display: flex;
@@ -248,26 +434,68 @@
         display: flex;
         align-items: center;
 
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        gap: 14px;
+
+        border-bottom:
+          1px solid rgba(255, 255, 255, 0.06);
 
         color: #c1c7c1;
 
         font-size: 14px;
         font-weight: 600;
 
+        transform: translateX(-12px);
+
+        opacity: 0;
+
         transition:
           color 0.2s ease,
-          padding-left 0.2s ease;
+          padding-left 0.2s ease,
+          transform 0.3s ease,
+          opacity 0.3s ease;
+
+        .navbar--open & {
+          transform: translateX(0);
+
+          opacity: 1;
+
+          transition-delay:
+            calc(
+              0.05s +
+              var(--mobile-index) * 0.05s
+            );
+        }
 
         &:hover {
           padding-left: 6px;
+
           color: #b8ff3d;
         }
       }
     }
 
+    &__mobile-number {
+      min-width: 22px;
+
+      color: rgba(184, 255, 61, 0.55);
+
+      font-family:
+        'Barlow Condensed',
+        sans-serif;
+
+      font-size: 12px;
+      font-weight: 700;
+
+      letter-spacing: 0.08em;
+    }
+
+    /* =========================
+       MOBILE CTA
+    ========================= */
+
     &__mobile-cta {
       width: calc(100% - 40px);
+
       min-height: 50px;
 
       margin: 18px 20px 22px;
@@ -275,34 +503,61 @@
       display: flex;
       align-items: center;
       justify-content: center;
+
       gap: 9px;
 
       border-radius: 999px;
 
       background: #b8ff3d;
+
       color: #071000;
 
       font-size: 13px;
       font-weight: 800;
+
+      opacity: 0;
+
+      transform: translateY(10px);
+
+      transition:
+        opacity 0.35s ease 0.3s,
+        transform 0.35s ease 0.3s,
+        background 0.25s ease;
+
+      .navbar--open & {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      &:hover {
+        background: #fff;
+      }
     }
   }
 }
 
-
-// ============================================
-// SMALL MOBILE
-// ============================================
+/* ================================================
+   SMALL MOBILE
+================================================ */
 
 @media (max-width: 420px) {
   .navbar {
     &__inner {
       width: calc(100% - 20px);
+
       min-height: 66px;
+    }
+
+    &__brand {
+      gap: 8px;
     }
 
     &__mark {
       width: 36px;
       height: 36px;
+
+      border-radius: 9px;
+
       font-size: 23px;
     }
 
@@ -312,7 +567,11 @@
       }
 
       small {
-        font-size: 7px;
+        margin-top: 4px;
+
+        font-size: 6.5px;
+
+        letter-spacing: 0.14em;
       }
     }
 
@@ -320,5 +579,156 @@
       width: 39px;
       height: 39px;
     }
+
+    &__mobile nav {
+      padding-inline: 14px;
+    }
+
+    &__mobile-cta {
+      width: calc(100% - 28px);
+
+      margin-inline: 14px;
+    }
+  }
+}
+
+/* ================================================
+   VERY SMALL — 320px
+================================================ */
+
+@media (max-width: 340px) {
+  .navbar {
+    &__inner {
+      width: calc(100% - 16px);
+
+      min-height: 62px;
+    }
+
+    &__brand {
+      gap: 7px;
+    }
+
+    &__mark {
+      width: 34px;
+      height: 34px;
+
+      font-size: 21px;
+    }
+
+    &__name {
+      strong {
+        font-size: 15px;
+      }
+
+      small {
+        font-size: 6px;
+        letter-spacing: 0.11em;
+      }
+    }
+
+    &__menu {
+      width: 37px;
+      height: 37px;
+    }
+  }
+}
+
+/* ================================================
+   ANIMATIONS
+================================================ */
+
+@keyframes navbarReveal {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes brandReveal {
+  from {
+    opacity: 0;
+    transform:
+      translateX(-18px)
+      scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform:
+      translateX(0)
+      scale(1);
+  }
+}
+
+@keyframes subtitleReveal {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes navLinkReveal {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ctaReveal {
+  from {
+    opacity: 0;
+    transform:
+      translateY(-8px)
+      scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform:
+      translateY(0)
+      scale(1);
+  }
+}
+
+@keyframes menuIconReveal {
+  from {
+    opacity: 0;
+    transform: scale(0.7)
+      rotate(-20deg);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1)
+      rotate(0);
+  }
+}
+
+/* ================================================
+   REDUCE MOTION
+================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .navbar,
+  .navbar *,
+  .navbar *::before,
+  .navbar *::after {
+    animation: none !important;
+    transition: none !important;
   }
 }

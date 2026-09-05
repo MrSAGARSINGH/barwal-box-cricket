@@ -1,5 +1,6 @@
 import { CalendarDays, Menu, X } from 'lucide-react';
 import { useState } from 'react';
+
 import './Navbar.scss';
 
 const links = [
@@ -20,48 +21,99 @@ function Navbar() {
     <header className={`navbar ${open ? 'navbar--open' : ''}`}>
       <div className="navbar__inner">
 
-        <a href="#home" className="navbar__brand" onClick={closeMenu}>
-          <span className="navbar__mark">B</span>
+        {/* =========================
+            BRAND
+        ========================= */}
+        <a
+          href="#home"
+          className="navbar__brand"
+          onClick={closeMenu}
+          aria-label="Barwal Box Cricket and Ground"
+        >
+          <span className="navbar__mark">
+            B
+          </span>
 
           <span className="navbar__name">
             <strong>BARWAL</strong>
-            <small>BOX CRICKET</small>
+            <small>BOX CRICKET &amp; GROUND</small>
           </span>
         </a>
 
-        <nav className="navbar__links">
-          {links.map((link) => (
-            <a href={link.href} key={link.name}>
+        {/* =========================
+            DESKTOP NAVIGATION
+        ========================= */}
+        <nav
+          className="navbar__links"
+          aria-label="Main navigation"
+        >
+          {links.map((link, index) => (
+            <a
+              href={link.href}
+              key={link.name}
+              style={{
+                '--nav-index': index,
+              }}
+            >
               {link.name}
             </a>
           ))}
         </nav>
 
-        <a href="#booking" className="navbar__cta">
+        {/* =========================
+            DESKTOP CTA
+        ========================= */}
+        <a
+          href="#booking"
+          className="navbar__cta"
+        >
           <CalendarDays size={17} />
-          Book Now
+          <span>Book Now</span>
         </a>
 
+        {/* =========================
+            MOBILE MENU BUTTON
+        ========================= */}
         <button
           type="button"
           className="navbar__menu"
-          onClick={() => setOpen(!open)}
-          aria-label={open ? 'Close menu' : 'Open menu'}
+          onClick={() => setOpen((current) => !current)}
+          aria-label={
+            open
+              ? 'Close navigation menu'
+              : 'Open navigation menu'
+          }
           aria-expanded={open}
         >
-          {open ? <X size={23} /> : <Menu size={23} />}
+          <span className="navbar__menu-icon">
+            {open ? (
+              <X size={23} />
+            ) : (
+              <Menu size={23} />
+            )}
+          </span>
         </button>
       </div>
 
+      {/* =========================
+          MOBILE MENU
+      ========================= */}
       <div className="navbar__mobile">
-        <nav>
-          {links.map((link) => (
+        <nav aria-label="Mobile navigation">
+          {links.map((link, index) => (
             <a
               href={link.href}
               key={link.name}
               onClick={closeMenu}
+              style={{
+                '--mobile-index': index,
+              }}
             >
-              {link.name}
+              <span className="navbar__mobile-number">
+                0{index + 1}
+              </span>
+
+              <span>{link.name}</span>
             </a>
           ))}
         </nav>
@@ -72,7 +124,7 @@ function Navbar() {
           onClick={closeMenu}
         >
           <CalendarDays size={18} />
-          Book Your Slot
+          <span>Book Your Slot</span>
         </a>
       </div>
     </header>

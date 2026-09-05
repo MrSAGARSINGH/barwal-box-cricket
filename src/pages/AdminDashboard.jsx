@@ -37,6 +37,9 @@ function AdminDashboard() {
         .split('T')[0]
     );
 
+  const [selectedVenue, setSelectedVenue] =
+    useState('all');
+
   const [loading, setLoading] =
     useState(true);
 
@@ -49,9 +52,10 @@ function AdminDashboard() {
   const [error, setError] =
     useState('');
 
-  /*
-   * FETCH ALL BOOKINGS FROM MONGODB
-   */
+  /* =========================
+     FETCH ALL BOOKINGS
+  ========================= */
+
   const fetchBookings = useCallback(
     async (showLoader = true) => {
       if (showLoader) {
@@ -85,9 +89,10 @@ function AdminDashboard() {
     []
   );
 
-  /*
-   * INITIAL LOAD
-   */
+  /* =========================
+     INITIAL LOAD
+  ========================= */
+
   useEffect(() => {
     fetchBookings();
   }, [fetchBookings]);
@@ -96,9 +101,10 @@ function AdminDashboard() {
     .toISOString()
     .split('T')[0];
 
-  /*
-   * ACTIVE BOOKINGS
-   */
+  /* =========================
+     ACTIVE BOOKINGS
+  ========================= */
+
   const activeBookings = useMemo(
     () =>
       bookings.filter(
@@ -108,9 +114,10 @@ function AdminDashboard() {
     [bookings]
   );
 
-  /*
-   * TODAY'S BOOKINGS
-   */
+  /* =========================
+     TODAY'S BOOKINGS
+  ========================= */
+
   const todayBookings = useMemo(
     () =>
       activeBookings.filter(
@@ -120,9 +127,10 @@ function AdminDashboard() {
     [activeBookings, today]
   );
 
-  /*
-   * SELECTED DATE BOOKINGS
-   */
+  /* =========================
+     SELECTED DATE BOOKINGS
+  ========================= */
+
   const selectedDateBookings = useMemo(
     () =>
       activeBookings
@@ -130,18 +138,25 @@ function AdminDashboard() {
           (booking) =>
             booking.date === selectedDate
         )
+        .filter(
+          (booking) =>
+            selectedVenue === 'all' ||
+            booking.venue === selectedVenue
+        )
         .sort((a, b) =>
           a.slot.localeCompare(b.slot)
         ),
     [
       activeBookings,
       selectedDate,
+      selectedVenue,
     ]
   );
 
-  /*
-   * CANCELLED BOOKINGS
-   */
+  /* =========================
+     CANCELLED BOOKINGS
+  ========================= */
+
   const cancelledBookings = useMemo(
     () =>
       bookings.filter(
@@ -151,9 +166,10 @@ function AdminDashboard() {
     [bookings]
   );
 
-  /*
-   * CANCEL BOOKING THROUGH API
-   */
+  /* =========================
+     CANCEL BOOKING
+  ========================= */
+
   const handleCancelBooking = async (
     booking
   ) => {
@@ -178,18 +194,15 @@ function AdminDashboard() {
           booking.bookingId
         );
 
-      /*
-       * Update local React state
-       * without another full request.
-       */
-      setBookings((currentBookings) =>
-        currentBookings.map(
-          (item) =>
-            item.bookingId ===
-            updatedBooking.bookingId
-              ? updatedBooking
-              : item
-        )
+      setBookings(
+        (currentBookings) =>
+          currentBookings.map(
+            (item) =>
+              item.bookingId ===
+              updatedBooking.bookingId
+                ? updatedBooking
+                : item
+          )
       );
     } catch (err) {
       console.error(
@@ -206,9 +219,10 @@ function AdminDashboard() {
     }
   };
 
-  /*
-   * WHATSAPP CUSTOMER
-   */
+  /* =========================
+     WHATSAPP CUSTOMER
+  ========================= */
+
   const openWhatsApp = (booking) => {
     const phone =
       booking.phone.replace(
@@ -221,12 +235,18 @@ function AdminDashboard() {
         ? `91${phone}`
         : phone;
 
+    const venueName =
+      booking.venue === 'ground'
+        ? 'Cricket Ground'
+        : 'Box Cricket';
+
     const message = `
 Hi ${booking.name},
 
-Your Barwal Box Cricket booking has been received.
+Your Barwal booking has been received.
 
 Booking ID: ${booking.bookingId}
+Venue: ${venueName}
 Date: ${booking.date}
 Slot: ${booking.slot}
 
@@ -242,16 +262,19 @@ Thank you for choosing Barwal Box Cricket.
     );
   };
 
-  /*
-   * CALL CUSTOMER
-   */
+  /* =========================
+     CALL CUSTOMER
+  ========================= */
+
   const callCustomer = (phone) => {
-    window.location.href = `tel:${phone}`;
+    window.location.href =
+      `tel:${phone}`;
   };
 
-  /*
-   * LOGOUT
-   */
+  /* =========================
+     LOGOUT
+  ========================= */
+
   const handleLogout = () => {
     sessionStorage.removeItem(
       'barwal_admin_token'
@@ -265,20 +288,36 @@ Thank you for choosing Barwal Box Cricket.
       '/admin/login';
   };
 
+  /* =========================
+     VENUE LABEL
+  ========================= */
+
+  const getVenueLabel = (venue) => {
+    return venue === 'ground'
+      ? 'CRICKET GROUND'
+      : 'BOX CRICKET';
+  };
+
   return (
     <main className="admin-dashboard">
       <div className="admin-dashboard__container">
 
-        {/* HEADER */}
+        {/* =========================
+            HEADER
+        ========================= */}
 
         <header className="admin-dashboard__header">
           <div className="admin-dashboard__brand">
+
             <div className="admin-dashboard__logo">
               B
             </div>
 
             <div>
-              <strong>BARWAL</strong>
+              <strong>
+                BARWAL
+              </strong>
+
               <span>
                 BOX CRICKET · ADMIN
               </span>
@@ -286,6 +325,7 @@ Thank you for choosing Barwal Box Cricket.
           </div>
 
           <div className="admin-dashboard__header-right">
+
             <div className="admin-dashboard__status">
               <i />
               SYSTEM ACTIVE
@@ -328,12 +368,17 @@ Thank you for choosing Barwal Box Cricket.
           </div>
         </header>
 
-        {/* ERROR */}
+        {/* =========================
+            ERROR
+        ========================= */}
 
         {error && (
           <div className="admin-dashboard__error">
             <XCircle size={17} />
-            <span>{error}</span>
+
+            <span>
+              {error}
+            </span>
 
             <button
               type="button"
@@ -346,9 +391,12 @@ Thank you for choosing Barwal Box Cricket.
           </div>
         )}
 
-        {/* WELCOME */}
+        {/* =========================
+            WELCOME
+        ========================= */}
 
         <section className="admin-dashboard__welcome">
+
           <div>
             <span>
               <ShieldCheck size={15} />
@@ -370,7 +418,9 @@ Thank you for choosing Barwal Box Cricket.
             <CalendarDays size={18} />
 
             <div>
-              <small>TODAY</small>
+              <small>
+                TODAY
+              </small>
 
               <strong>
                 {new Date().toLocaleDateString(
@@ -384,9 +434,12 @@ Thank you for choosing Barwal Box Cricket.
               </strong>
             </div>
           </div>
+
         </section>
 
-        {/* STATS */}
+        {/* =========================
+            STATS
+        ========================= */}
 
         <section className="admin-dashboard__stats">
 
@@ -431,7 +484,9 @@ Thank you for choosing Barwal Box Cricket.
               <CheckCircle2 size={19} />
             </div>
 
-            <span>CONFIRMED</span>
+            <span>
+              CONFIRMED
+            </span>
 
             <strong>
               {activeBookings.length}
@@ -447,7 +502,9 @@ Thank you for choosing Barwal Box Cricket.
               <XCircle size={19} />
             </div>
 
-            <span>CANCELLED</span>
+            <span>
+              CANCELLED
+            </span>
 
             <strong>
               {cancelledBookings.length}
@@ -460,15 +517,20 @@ Thank you for choosing Barwal Box Cricket.
 
         </section>
 
-        {/* CONTENT */}
+        {/* =========================
+            CONTENT
+        ========================= */}
 
         <section className="admin-dashboard__content">
 
-          {/* BOOKINGS */}
+          {/* =========================
+              BOOKINGS
+          ========================= */}
 
           <div className="admin-dashboard__bookings">
 
             <div className="admin-dashboard__section-head">
+
               <div>
                 <span>
                   BOOKING MANAGEMENT
@@ -480,26 +542,63 @@ Thank you for choosing Barwal Box Cricket.
                 </h2>
               </div>
 
-              <label>
-                <CalendarDays size={16} />
+              <div className="admin-dashboard__filters">
 
-                <input
-                  type="date"
-                  value={selectedDate}
-                  min={today}
-                  onChange={(event) =>
-                    setSelectedDate(
-                      event.target.value
-                    )
-                  }
-                />
-              </label>
+                {/* DATE */}
+
+                <label>
+                  <CalendarDays size={16} />
+
+                  <input
+                    type="date"
+                    value={selectedDate}
+                    min={today}
+                    onChange={(event) =>
+                      setSelectedDate(
+                        event.target.value
+                      )
+                    }
+                  />
+                </label>
+
+                {/* VENUE */}
+
+                <label>
+                  <MapPin size={16} />
+
+                  <select
+                    value={selectedVenue}
+                    onChange={(event) =>
+                      setSelectedVenue(
+                        event.target.value
+                      )
+                    }
+                  >
+                    <option value="all">
+                      ALL VENUES
+                    </option>
+
+                    <option value="box-cricket">
+                      BOX CRICKET
+                    </option>
+
+                    <option value="ground">
+                      CRICKET GROUND
+                    </option>
+                  </select>
+                </label>
+
+              </div>
+
             </div>
 
-            {/* LOADING */}
+            {/* =========================
+                LOADING
+            ========================= */}
 
             {loading ? (
               <div className="admin-dashboard__empty">
+
                 <RefreshCw
                   size={28}
                   className="is-spinning"
@@ -512,10 +611,12 @@ Thank you for choosing Barwal Box Cricket.
                 <span>
                   Fetching latest data from MongoDB...
                 </span>
+
               </div>
             ) : selectedDateBookings.length ===
               0 ? (
               <div className="admin-dashboard__empty">
+
                 <Clock3 size={28} />
 
                 <strong>
@@ -523,8 +624,10 @@ Thank you for choosing Barwal Box Cricket.
                 </strong>
 
                 <span>
-                  No active bookings for this date.
+                  No active bookings for this
+                  date and venue.
                 </span>
+
               </div>
             ) : (
               <div className="admin-dashboard__booking-list">
@@ -536,14 +639,20 @@ Thank you for choosing Barwal Box Cricket.
                       key={booking.bookingId}
                     >
 
+                      {/* TIME */}
+
                       <div className="admin-dashboard__booking-time">
                         <Clock3 size={16} />
+
                         <strong>
                           {booking.slot}
                         </strong>
                       </div>
 
+                      {/* CUSTOMER */}
+
                       <div className="admin-dashboard__booking-info">
+
                         <strong>
                           {booking.name}
                         </strong>
@@ -551,12 +660,30 @@ Thank you for choosing Barwal Box Cricket.
                         <span>
                           {booking.bookingId}
                         </span>
+
+                        <small
+                          className={`admin-dashboard__venue ${
+                            booking.venue === 'ground'
+                              ? 'admin-dashboard__venue--ground'
+                              : ''
+                          }`}
+                        >
+                          {getVenueLabel(
+                            booking.venue
+                          )}
+                        </small>
+
                       </div>
+
+                      {/* PHONE */}
 
                       <div className="admin-dashboard__booking-phone">
                         <Phone size={14} />
+
                         {booking.phone}
                       </div>
+
+                      {/* ACTIONS */}
 
                       <div className="admin-dashboard__booking-actions">
 
@@ -624,7 +751,9 @@ Thank you for choosing Barwal Box Cricket.
 
           </div>
 
-          {/* SIDE PANEL */}
+          {/* =========================
+              SIDE PANEL
+          ========================= */}
 
           <aside className="admin-dashboard__side">
 
@@ -634,12 +763,14 @@ Thank you for choosing Barwal Box Cricket.
                 <MapPin size={19} />
               </div>
 
-              <span>GROUND</span>
+              <span>
+                VENUES
+              </span>
 
               <h3>
                 BARWAL
                 <strong>
-                  BOX CRICKET
+                  BOX CRICKET & GROUND
                 </strong>
               </h3>
 
@@ -673,21 +804,43 @@ Thank you for choosing Barwal Box Cricket.
 
               <div>
                 <small>
-                  Cancelled
+                  Box Cricket
                 </small>
 
                 <strong>
-                  {cancelledBookings.length}
+                  {
+                    todayBookings.filter(
+                      (booking) =>
+                        booking.venue ===
+                        'box-cricket'
+                    ).length
+                  }
                 </strong>
               </div>
 
               <div>
                 <small>
-                  Ground status
+                  Cricket Ground
                 </small>
 
                 <strong>
-                  ACTIVE
+                  {
+                    todayBookings.filter(
+                      (booking) =>
+                        booking.venue ===
+                        'ground'
+                    ).length
+                  }
+                </strong>
+              </div>
+
+              <div>
+                <small>
+                  Cancelled
+                </small>
+
+                <strong>
+                  {cancelledBookings.length}
                 </strong>
               </div>
 
@@ -697,9 +850,12 @@ Thank you for choosing Barwal Box Cricket.
 
         </section>
 
-        {/* FOOTER */}
+        {/* =========================
+            FOOTER
+        ========================= */}
 
         <footer className="admin-dashboard__footer">
+
           <span>
             BARWAL BOX CRICKET · ADMIN PANEL
           </span>
@@ -708,6 +864,7 @@ Thank you for choosing Barwal Box Cricket.
             <i />
             MONGODB BOOKING SYSTEM ACTIVE
           </span>
+
         </footer>
 
       </div>

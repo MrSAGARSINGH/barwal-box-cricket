@@ -9,6 +9,14 @@ const bookingSchema = new mongoose.Schema(
       index: true,
     },
 
+    venue: {
+      type: String,
+      enum: ['box-cricket', 'ground'],
+      required: true,
+      default: 'box-cricket',
+      trim: true,
+    },
+
     date: {
       type: String,
       required: true,
@@ -44,8 +52,10 @@ const bookingSchema = new mongoose.Schema(
   }
 );
 
+// Same slot can be booked separately for Box Cricket and Ground.
+// But the same venue + date + slot cannot have two confirmed bookings.
 bookingSchema.index(
-  { date: 1, slot: 1 },
+  { venue: 1, date: 1, slot: 1 },
   {
     unique: true,
     partialFilterExpression: {

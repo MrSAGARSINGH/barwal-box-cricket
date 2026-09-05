@@ -26,16 +26,27 @@ export const createBooking = async (bookingData) => {
 };
 
 /* =========================
-   GET BOOKINGS BY DATE
+   GET BOOKINGS BY DATE + VENUE
 ========================= */
 
-export const getBookingsByDate = async (date) => {
+export const getBookingsByDate = async (
+  date,
+  venue
+) => {
   if (!date) {
     return [];
   }
 
+  const params = new URLSearchParams();
+
+  params.set('date', date);
+
+  if (venue) {
+    params.set('venue', venue);
+  }
+
   const response = await fetch(
-    `${API_URL}/date?date=${encodeURIComponent(date)}`
+    `${API_URL}/date?${params.toString()}`
   );
 
   const data = await response.json();
@@ -55,10 +66,11 @@ export const getBookingsByDate = async (date) => {
 
 export const isSlotBooked = async (
   date,
-  slot
+  slot,
+  venue
 ) => {
   const bookings =
-    await getBookingsByDate(date);
+    await getBookingsByDate(date, venue);
 
   return bookings.some(
     (booking) =>

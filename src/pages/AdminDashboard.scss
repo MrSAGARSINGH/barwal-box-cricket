@@ -11,6 +11,10 @@
     padding: 30px 0 25px;
   }
 
+  /* =========================================
+     HEADER
+  ========================================= */
+
   &__header {
     min-height: 64px;
     display: flex;
@@ -103,6 +107,10 @@
     }
   }
 
+  /* =========================================
+     WELCOME
+  ========================================= */
+
   &__welcome {
     padding: 55px 0 38px;
     display: flex;
@@ -156,6 +164,7 @@
 
     svg {
       color: #b8ff3d;
+      flex-shrink: 0;
     }
 
     div {
@@ -175,6 +184,10 @@
       font-size: 12px;
     }
   }
+
+  /* =========================================
+     STATS
+  ========================================= */
 
   &__stats {
     display: grid;
@@ -223,6 +236,10 @@
     color: #b8ff3d;
   }
 
+  /* =========================================
+     CONTENT
+  ========================================= */
+
   &__content {
     margin-top: 13px;
     display: grid;
@@ -239,7 +256,12 @@
 
   &__bookings {
     padding: 25px;
+    min-width: 0;
   }
+
+  /* =========================================
+     SECTION HEADER + FILTERS
+  ========================================= */
 
   &__section-head {
     display: flex;
@@ -247,7 +269,9 @@
     justify-content: space-between;
     gap: 20px;
 
-    > div {
+    > div:first-child {
+      min-width: 0;
+
       > span {
         color: #b8ff3d;
         font-size: 7px;
@@ -266,29 +290,56 @@
         }
       }
     }
+  }
+
+  &__filters {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
 
     label {
       height: 40px;
+      min-width: 145px;
       padding: 0 11px;
       display: flex;
       align-items: center;
       gap: 8px;
       border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 4px;
+      background: rgba(255, 255, 255, 0.015);
 
       svg {
         color: #b8ff3d;
+        flex-shrink: 0;
       }
 
-      input {
+      input,
+      select {
+        width: 100%;
+        min-width: 0;
         border: 0;
         outline: 0;
         background: transparent;
         color: #fff;
         font-size: 10px;
       }
+
+      select {
+        cursor: pointer;
+        appearance: none;
+
+        option {
+          background: #111611;
+          color: #fff;
+        }
+      }
     }
   }
+
+  /* =========================================
+     BOOKING LIST
+  ========================================= */
 
   &__booking-list {
     margin-top: 25px;
@@ -307,6 +358,14 @@
     border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 4px;
     background: rgba(255, 255, 255, 0.018);
+    transition:
+      border-color 0.2s ease,
+      background 0.2s ease;
+
+    &:hover {
+      border-color: rgba(184, 255, 61, 0.14);
+      background: rgba(184, 255, 61, 0.018);
+    }
   }
 
   &__booking-time {
@@ -315,16 +374,26 @@
     gap: 8px;
     color: #b8ff3d;
 
+    svg {
+      flex-shrink: 0;
+    }
+
     strong {
       font-size: 11px;
     }
   }
 
   &__booking-info {
+    min-width: 0;
     display: flex;
     flex-direction: column;
+    align-items: flex-start;
 
     strong {
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
       font-size: 11px;
     }
 
@@ -335,13 +404,52 @@
     }
   }
 
+  /* =========================================
+     VENUE BADGE
+  ========================================= */
+
+  &__venue {
+    width: fit-content;
+    margin-top: 6px;
+    padding: 4px 7px;
+    border: 1px solid rgba(184, 255, 61, 0.18);
+    border-radius: 3px;
+    background: rgba(184, 255, 61, 0.07);
+    color: #b8ff3d;
+    font-size: 6px;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+
+    &--ground {
+      border-color: rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.045);
+      color: #c5cbc5;
+    }
+  }
+
+  /* =========================================
+     PHONE
+  ========================================= */
+
   &__booking-phone {
+    min-width: 0;
     display: flex;
     align-items: center;
     gap: 6px;
     color: #818a82;
     font-size: 9px;
+    white-space: nowrap;
+
+    svg {
+      flex-shrink: 0;
+    }
   }
+
+  /* =========================================
+     ACTIONS
+  ========================================= */
 
   &__booking-actions {
     display: flex;
@@ -358,17 +466,26 @@
       color: #9da59e;
       transition: 0.2s ease;
 
-      &:hover {
+      &:hover:not(:disabled) {
         border-color: rgba(184, 255, 61, 0.3);
         color: #b8ff3d;
       }
 
-      &.danger:hover {
+      &.danger:hover:not(:disabled) {
         border-color: rgba(255, 90, 90, 0.3);
         color: #ff6b6b;
       }
+
+      &:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+      }
     }
   }
+
+  /* =========================================
+     EMPTY STATE
+  ========================================= */
 
   &__empty {
     min-height: 230px;
@@ -378,6 +495,7 @@
     justify-content: center;
     flex-direction: column;
     color: #626b63;
+    text-align: center;
 
     svg {
       margin-bottom: 12px;
@@ -396,10 +514,15 @@
     }
   }
 
+  /* =========================================
+     SIDE PANEL
+  ========================================= */
+
   &__side {
     display: flex;
     flex-direction: column;
     gap: 13px;
+    min-width: 0;
   }
 
   &__side-card {
@@ -461,8 +584,13 @@
       height: 6px;
       border-radius: 50%;
       background: #b8ff3d;
+      box-shadow: 0 0 8px rgba(184, 255, 61, 0.5);
     }
   }
+
+  /* =========================================
+     QUICK OVERVIEW
+  ========================================= */
 
   &__quick {
     display: flex;
@@ -474,6 +602,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 10px;
       border-top: 1px solid rgba(255, 255, 255, 0.05);
 
       &:first-of-type {
@@ -488,9 +617,14 @@
       strong {
         color: #c3c9c3;
         font-size: 9px;
+        text-align: right;
       }
     }
   }
+
+  /* =========================================
+     FOOTER
+  ========================================= */
 
   &__footer {
     margin-top: 25px;
@@ -514,6 +648,7 @@
         height: 5px;
         border-radius: 50%;
         background: #b8ff3d;
+        box-shadow: 0 0 7px rgba(184, 255, 61, 0.45);
       }
     }
   }
@@ -601,8 +736,30 @@
       align-items: stretch;
       flex-direction: column;
 
+      > div:first-child {
+        width: 100%;
+      }
+    }
+
+    &__filters {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px;
+
       label {
         width: 100%;
+        min-width: 0;
+        height: 40px;
+      }
+
+      input,
+      select {
+        width: 100%;
+      }
+
+      select {
+        font-size: 8px;
       }
     }
 
@@ -611,8 +768,17 @@
       gap: 10px;
       padding: 14px;
 
+      &-time {
+        min-width: 0;
+
+        strong {
+          font-size: 10px;
+        }
+      }
+
       &-phone {
         grid-column: 1;
+        font-size: 8px;
       }
 
       &-actions {
@@ -634,7 +800,7 @@
 }
 
 /* =========================================
-   320px
+   SMALL MOBILE / 320px
 ========================================= */
 
 @media (max-width: 360px) {
@@ -650,13 +816,25 @@
     }
 
     &__brand {
+      gap: 8px;
+
       strong {
         font-size: 18px;
       }
 
       span {
         font-size: 6px;
+        letter-spacing: 0.12em;
       }
+    }
+
+    &__header-right {
+      gap: 5px;
+    }
+
+    &__refresh {
+      width: 34px;
+      height: 34px;
     }
 
     &__logout {
@@ -678,6 +856,8 @@
     }
 
     &__stats {
+      gap: 6px;
+
       article {
         padding: 12px;
 
@@ -695,13 +875,58 @@
       }
     }
 
-    &__booking {
-      &-phone {
-        font-size: 8px;
+    &__bookings {
+      padding: 13px;
+    }
+
+    &__filters {
+      grid-template-columns: 1fr;
+      gap: 6px;
+
+      label {
+        height: 38px;
       }
+
+      select {
+        font-size: 7px;
+      }
+    }
+
+    &__booking {
+      padding: 12px;
+      gap: 8px;
+
+      &-time {
+        strong {
+          font-size: 9px;
+        }
+      }
+
+      &-phone {
+        font-size: 7px;
+      }
+
+      &-actions {
+        gap: 3px;
+
+        button {
+          width: 29px;
+          height: 29px;
+        }
+      }
+    }
+
+    &__venue {
+      margin-top: 5px;
+      padding: 3px 5px;
+      font-size: 5px;
     }
   }
 }
+
+/* =========================================
+   REFRESH BUTTON
+========================================= */
 
 .admin-dashboard__refresh {
   width: 38px;
@@ -726,6 +951,10 @@
   }
 }
 
+/* =========================================
+   ERROR
+========================================= */
+
 .admin-dashboard__error {
   margin-bottom: 22px;
   padding: 14px 16px;
@@ -746,8 +975,17 @@
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 0.08em;
+    cursor: pointer;
+
+    &:hover {
+      border-color: rgba(255, 255, 255, 0.25);
+    }
   }
 }
+
+/* =========================================
+   SPINNER
+========================================= */
 
 .is-spinning {
   animation: adminSpin 0.8s linear infinite;
@@ -758,6 +996,10 @@
     transform: rotate(360deg);
   }
 }
+
+/* =========================================
+   LEGACY / SAFE
+========================================= */
 
 .booking__new {
   cursor: pointer;
