@@ -1,44 +1,110 @@
+/* =========================================================
+   BARWAL BOX CRICKET
+   HERO — FINAL CINEMATIC VERSION
+========================================================= */
+
 .hero {
   position: relative;
   width: 100%;
   max-width: 100%;
   min-height: 100svh;
+
   overflow: hidden;
+  isolation: isolate;
+
   background:
     radial-gradient(
-      circle at 75% 45%,
-      rgba(184, 255, 61, 0.08),
+      circle at 78% 38%,
+      rgba(184, 255, 61, 0.09),
       transparent 30%
+    ),
+    radial-gradient(
+      circle at 15% 85%,
+      rgba(184, 255, 61, 0.035),
+      transparent 28%
     ),
     linear-gradient(
       135deg,
       #080b09 0%,
-      #0b100c 55%,
+      #0b100c 52%,
       #111811 100%
     );
-  isolation: isolate;
+
+  /* =======================================================
+     BACKGROUND GLOWS
+  ======================================================= */
+
+  &__glow {
+    position: absolute;
+    z-index: -1;
+
+    border-radius: 50%;
+    pointer-events: none;
+
+    &--one {
+      top: -220px;
+      left: -180px;
+
+      width: 470px;
+      height: 470px;
+
+      background: rgba(184, 255, 61, 0.035);
+      filter: blur(95px);
+
+      animation:
+        heroBackgroundGlowOne
+        10s
+        ease-in-out
+        infinite;
+    }
+
+    &--two {
+      right: -220px;
+      bottom: -260px;
+
+      width: 520px;
+      height: 520px;
+
+      background: rgba(184, 255, 61, 0.045);
+      filter: blur(105px);
+
+      animation:
+        heroBackgroundGlowTwo
+        12s
+        ease-in-out
+        infinite;
+    }
+  }
+
+  /* =======================================================
+     MAIN CONTAINER
+  ======================================================= */
 
   &__container {
     position: relative;
     z-index: 2;
+
     width: min(1280px, calc(100% - 48px));
     max-width: 100%;
     min-width: 0;
+
     margin: 0 auto;
     padding: 145px 0 60px;
 
     display: grid;
+
     grid-template-columns:
       minmax(0, 0.88fr)
       minmax(0, 1.12fr);
 
     align-items: center;
+
     gap: 60px;
   }
 
-  /* =========================
-     CONTENT
-  ========================= */
+  /* =======================================================
+     LEFT CONTENT
+  ======================================================= */
 
   &__content {
     min-width: 0;
@@ -47,8 +113,8 @@
   &__eyebrow {
     width: fit-content;
     max-width: 100%;
-    margin-bottom: 25px;
 
+    margin-bottom: 25px;
     padding: 9px 14px;
 
     display: flex;
@@ -65,6 +131,12 @@
     font-size: 10px;
     font-weight: 800;
     letter-spacing: 0.15em;
+
+    animation:
+      heroEyebrowReveal
+      0.8s
+      cubic-bezier(0.22, 1, 0.36, 1)
+      both;
   }
 
   &__eyebrow-dot {
@@ -77,7 +149,13 @@
 
     box-shadow:
       0 0 0 4px rgba(184, 255, 61, 0.08),
-      0 0 15px rgba(184, 255, 61, 0.8);
+      0 0 16px rgba(184, 255, 61, 0.8);
+
+    animation:
+      heroDotPulse
+      2s
+      ease-in-out
+      infinite;
   }
 
   &__title {
@@ -93,6 +171,13 @@
     letter-spacing: -0.025em;
     text-transform: uppercase;
 
+    animation:
+      heroTitleReveal
+      1s
+      cubic-bezier(0.22, 1, 0.36, 1)
+      0.08s
+      both;
+
     span,
     strong {
       display: block;
@@ -104,22 +189,39 @@
 
     strong {
       color: #b8ff3d;
+
+      text-shadow:
+        0 0 20px rgba(184, 255, 61, 0.04);
+
+      animation:
+        heroGreenPulse
+        4s
+        ease-in-out
+        infinite;
     }
   }
 
   &__description {
     max-width: 520px;
+
     margin-top: 30px;
 
     color: #929b93;
 
     font-size: 15px;
     line-height: 1.8;
+
+    animation:
+      heroContentReveal
+      0.9s
+      cubic-bezier(0.22, 1, 0.36, 1)
+      0.22s
+      both;
   }
 
-  /* =========================
-     BUTTONS
-  ========================= */
+  /* =======================================================
+     ACTION BUTTONS
+  ======================================================= */
 
   &__actions {
     margin-top: 34px;
@@ -127,7 +229,15 @@
     display: flex;
     align-items: center;
     flex-wrap: wrap;
+
     gap: 12px;
+
+    animation:
+      heroContentReveal
+      0.9s
+      cubic-bezier(0.22, 1, 0.36, 1)
+      0.32s
+      both;
   }
 
   &__primary,
@@ -137,6 +247,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
+
     gap: 9px;
 
     border-radius: 9px;
@@ -145,10 +256,15 @@
     font-weight: 800;
 
     transition:
-      transform 0.25s ease,
-      background 0.25s ease,
-      border-color 0.25s ease,
-      color 0.25s ease;
+      transform 0.3s ease,
+      background 0.3s ease,
+      border-color 0.3s ease,
+      color 0.3s ease,
+      box-shadow 0.3s ease;
+
+    svg {
+      flex-shrink: 0;
+    }
   }
 
   &__primary {
@@ -157,9 +273,28 @@
     background: #b8ff3d;
     color: #071000;
 
+    box-shadow:
+      0 8px 30px rgba(184, 255, 61, 0.08);
+
+    svg:last-child {
+      transition: transform 0.3s ease;
+    }
+
     &:hover {
       transform: translateY(-3px);
+
       background: #ffffff;
+
+      box-shadow:
+        0 15px 35px rgba(184, 255, 61, 0.16);
+
+      svg:last-child {
+        transform: translateX(5px);
+      }
+    }
+
+    &:active {
+      transform: translateY(-1px);
     }
   }
 
@@ -167,32 +302,56 @@
     padding: 0 19px;
 
     border: 1px solid rgba(255, 255, 255, 0.13);
+
     background: rgba(255, 255, 255, 0.035);
 
     color: #e7ebe6;
 
+    svg {
+      color: #b8ff3d;
+
+      transition:
+        transform 0.3s ease,
+        color 0.3s ease;
+    }
+
     &:hover {
       transform: translateY(-3px);
+
       border-color: rgba(184, 255, 61, 0.45);
+
       color: #b8ff3d;
+
+      svg {
+        transform: scale(1.15);
+      }
     }
   }
 
-  /* =========================
+  /* =======================================================
      META
-  ========================= */
+  ======================================================= */
 
   &__meta {
     margin-top: 40px;
 
     display: flex;
     align-items: center;
+
     gap: 22px;
+
+    animation:
+      heroContentReveal
+      0.9s
+      cubic-bezier(0.22, 1, 0.36, 1)
+      0.42s
+      both;
   }
 
   &__meta-item {
     display: flex;
     align-items: center;
+
     gap: 10px;
 
     color: #b8ff3d;
@@ -209,6 +368,7 @@
 
     span {
       color: #657067;
+
       font-size: 8px;
       font-weight: 800;
       letter-spacing: 0.16em;
@@ -216,6 +376,7 @@
 
     strong {
       color: #dfe4df;
+
       font-size: 11px;
       font-weight: 600;
     }
@@ -227,9 +388,17 @@
     flex: 0 0 8px;
 
     border-radius: 50%;
+
     background: #7dff6b;
 
-    box-shadow: 0 0 12px rgba(125, 255, 107, 0.7);
+    box-shadow:
+      0 0 12px rgba(125, 255, 107, 0.7);
+
+    animation:
+      heroDotPulse
+      2s
+      ease-in-out
+      infinite;
   }
 
   &__divider {
@@ -239,9 +408,9 @@
     background: rgba(255, 255, 255, 0.1);
   }
 
-  /* =========================
-     IMAGE SLIDER
-  ========================= */
+  /* =======================================================
+     RIGHT VISUAL
+  ======================================================= */
 
   &__visual {
     position: relative;
@@ -251,10 +420,18 @@
     height: 590px;
 
     overflow: visible;
+
+    animation:
+      heroVisualReveal
+      1.1s
+      cubic-bezier(0.22, 1, 0.36, 1)
+      0.15s
+      both;
   }
 
   &__visual-glow {
     position: absolute;
+
     inset: 12% 5% 10% 5%;
 
     border-radius: 50%;
@@ -264,11 +441,22 @@
     filter: blur(80px);
 
     pointer-events: none;
+
+    animation:
+      heroVisualGlow
+      5s
+      ease-in-out
+      infinite;
   }
+
+  /* =======================================================
+     IMAGE CARD
+  ======================================================= */
 
   &__image-card {
     position: absolute;
-    inset: 20px 20px 30px 20px;
+
+    inset: 20px 20px 30px;
 
     overflow: hidden;
 
@@ -282,73 +470,297 @@
       inset 0 0 0 1px rgba(255, 255, 255, 0.025);
 
     transform: rotate(1.2deg);
+
+    transition:
+      transform 0.5s ease,
+      box-shadow 0.5s ease;
+
+    &:hover {
+      transform:
+        rotate(0.7deg)
+        scale(1.005);
+
+      box-shadow:
+        0 35px 100px rgba(0, 0, 0, 0.62),
+        0 0 45px rgba(184, 255, 61, 0.05),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+    }
   }
 
-  &__slide {
+  /* =======================================================
+     SLIDE WRAPPER
+  ======================================================= */
+
+  &__slides {
     position: absolute;
     inset: 0;
 
     width: 100%;
     height: 100%;
 
-    object-fit: cover;
+    overflow: hidden;
+  }
+
+  /* =======================================================
+     CINEMATIC SLIDES
+  ======================================================= */
+
+  &__slide {
+    position: absolute;
+
+    inset: -6%;
+
+    width: 112%;
+    height: 112%;
+
+    overflow: hidden;
 
     opacity: 0;
+    visibility: hidden;
 
-    transform: scale(1.06);
+    z-index: 0;
+
+    filter:
+      blur(10px)
+      saturate(0.92)
+      brightness(0.88);
+
+    transform-origin: center center;
 
     transition:
-      opacity 1s ease,
-      transform 5s ease;
+      opacity 1.25s
+        cubic-bezier(0.22, 1, 0.36, 1),
+      filter 1.25s
+        cubic-bezier(0.22, 1, 0.36, 1),
+      visibility 1.25s ease;
 
-    will-change: opacity, transform;
+    will-change:
+      transform,
+      opacity,
+      filter;
+
+    backface-visibility: hidden;
+
+    img {
+      width: 100%;
+      height: 100%;
+
+      display: block;
+
+      object-fit: cover;
+
+      user-select: none;
+      -webkit-user-drag: none;
+      pointer-events: none;
+    }
+
+    &--active {
+      opacity: 1;
+      visibility: visible;
+
+      z-index: 2;
+
+      filter:
+        blur(0)
+        saturate(1)
+        brightness(1);
+    }
+
+    &--next {
+      z-index: 1;
+    }
   }
 
-  &__slide--active {
-    opacity: 1;
-    transform: scale(1);
+  /* =======================================================
+     8 DIFFERENT CAMERA MOVEMENTS
+  ======================================================= */
+
+  &__slide--motion-1.hero__slide--active {
+    animation:
+      barwalCinema01
+      4.5s
+      cubic-bezier(0.16, 1, 0.3, 1)
+      forwards;
   }
+
+  &__slide--motion-2.hero__slide--active {
+    animation:
+      barwalCinema02
+      4.5s
+      cubic-bezier(0.16, 1, 0.3, 1)
+      forwards;
+  }
+
+  &__slide--motion-3.hero__slide--active {
+    animation:
+      barwalCinema03
+      4.5s
+      cubic-bezier(0.16, 1, 0.3, 1)
+      forwards;
+  }
+
+  &__slide--motion-4.hero__slide--active {
+    animation:
+      barwalCinema04
+      4.5s
+      cubic-bezier(0.16, 1, 0.3, 1)
+      forwards;
+  }
+
+  &__slide--motion-5.hero__slide--active {
+    animation:
+      barwalCinema05
+      4.5s
+      cubic-bezier(0.16, 1, 0.3, 1)
+      forwards;
+  }
+
+  &__slide--motion-6.hero__slide--active {
+    animation:
+      barwalCinema06
+      4.5s
+      cubic-bezier(0.16, 1, 0.3, 1)
+      forwards;
+  }
+
+  &__slide--motion-7.hero__slide--active {
+    animation:
+      barwalCinema07
+      4.5s
+      cubic-bezier(0.16, 1, 0.3, 1)
+      forwards;
+  }
+
+  &__slide--motion-8.hero__slide--active {
+    animation:
+      barwalCinema08
+      4.5s
+      cubic-bezier(0.16, 1, 0.3, 1)
+      forwards;
+  }
+
+  /* =======================================================
+     CINEMATIC OVERLAY
+  ======================================================= */
 
   &__image-overlay {
     position: absolute;
     inset: 0;
 
-    z-index: 2;
+    z-index: 3;
 
     background:
       linear-gradient(
-        to bottom,
-        rgba(4, 7, 5, 0.25),
-        transparent 35%,
-        rgba(4, 7, 5, 0.85)
+        180deg,
+        rgba(4, 7, 5, 0.16) 0%,
+        transparent 28%,
+        transparent 48%,
+        rgba(4, 7, 5, 0.45) 72%,
+        rgba(4, 7, 5, 0.92) 100%
       ),
       linear-gradient(
         90deg,
-        rgba(4, 7, 5, 0.35),
-        transparent 50%,
+        rgba(4, 7, 5, 0.48),
+        transparent 48%,
         rgba(4, 7, 5, 0.18)
+      );
+
+    pointer-events: none;
+  }
+
+  /* =======================================================
+     VIGNETTE
+  ======================================================= */
+
+  &__image-vignette {
+    position: absolute;
+    inset: 0;
+
+    z-index: 4;
+
+    pointer-events: none;
+
+    background:
+      radial-gradient(
+        ellipse at center,
+        transparent 48%,
+        rgba(0, 0, 0, 0.12) 72%,
+        rgba(0, 0, 0, 0.52) 100%
       );
   }
 
+  /* =======================================================
+     LIGHT SWEEP
+  ======================================================= */
+
+  &__image-light {
+    position: absolute;
+
+    top: -35%;
+    left: -70%;
+
+    z-index: 5;
+
+    width: 34%;
+    height: 170%;
+
+    background:
+      linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.07),
+        rgba(184, 255, 61, 0.12),
+        rgba(255, 255, 255, 0.04),
+        transparent
+      );
+
+    filter: blur(9px);
+
+    transform: rotate(17deg);
+
+    pointer-events: none;
+
+    animation:
+      heroLightSweep
+      8s
+      ease-in-out
+      infinite;
+  }
+
+  /* =======================================================
+     BRAND ON IMAGE
+  ======================================================= */
+
   &__image-content {
     position: absolute;
-    z-index: 3;
 
     left: 30px;
     bottom: 28px;
+
+    z-index: 7;
 
     display: flex;
     flex-direction: column;
 
     font-family: var(--font-heading);
+
     line-height: 0.82;
 
     text-transform: uppercase;
 
+    animation:
+      heroImageContentReveal
+      1s
+      cubic-bezier(0.22, 1, 0.36, 1)
+      0.65s
+      both;
+
     span {
-      color: rgba(255, 255, 255, 0.75);
+      color: rgba(255, 255, 255, 0.76);
+
       font-size: 23px;
       font-weight: 800;
+
       letter-spacing: 0.14em;
     }
 
@@ -359,50 +771,106 @@
 
       font-size: clamp(42px, 4vw, 65px);
       font-weight: 900;
+
       letter-spacing: -0.02em;
+
+      text-shadow:
+        0 0 30px rgba(184, 255, 61, 0.08);
     }
   }
 
-  /* =========================
+  /* =======================================================
      COUNTER
-  ========================= */
+  ======================================================= */
 
   &__counter {
     position: absolute;
-    z-index: 4;
 
     right: 24px;
     bottom: 28px;
 
+    z-index: 8;
+
     display: flex;
     align-items: baseline;
+
     gap: 4px;
 
     font-family: var(--font-heading);
 
     strong {
       color: #b8ff3d;
+
       font-size: 27px;
+
+      animation:
+        heroCounterChange
+        0.45s
+        ease
+        both;
     }
 
     span {
       color: rgba(255, 255, 255, 0.45);
+
       font-size: 12px;
     }
   }
 
-  /* =========================
-     BADGE
-  ========================= */
+  /* =======================================================
+     PROGRESS
+  ======================================================= */
+
+  &__progress {
+    position: absolute;
+
+    left: 30px;
+    right: 30px;
+    bottom: 15px;
+
+    z-index: 9;
+
+    height: 2px;
+
+    overflow: hidden;
+
+    background: rgba(255, 255, 255, 0.16);
+
+    pointer-events: none;
+  }
+
+  &__progress-bar {
+    display: block;
+
+    width: 0;
+    height: 100%;
+
+    background: #b8ff3d;
+
+    box-shadow:
+      0 0 12px rgba(184, 255, 61, 0.7);
+
+    animation:
+      heroProgress
+      4.5s
+      linear
+      forwards;
+  }
+
+  /* =======================================================
+     TOP BADGE
+  ======================================================= */
 
   &__badge {
     position: absolute;
-    z-index: 6;
 
     top: 0;
     right: 0;
 
+    z-index: 12;
+
     min-width: 174px;
+
     padding: 16px 20px;
 
     display: flex;
@@ -420,10 +888,21 @@
 
     font-size: 9px;
     font-weight: 800;
+
     letter-spacing: 0.13em;
+
+    box-shadow:
+      0 15px 45px rgba(0, 0, 0, 0.25);
+
+    animation:
+      heroFloatingBadge
+      4s
+      ease-in-out
+      infinite;
 
     span {
       color: #b8ff3d;
+
       font-size: 13px;
     }
 
@@ -431,24 +910,28 @@
       margin-top: 5px;
 
       color: #626b63;
+
       font-size: 7px;
+
       letter-spacing: 0.1em;
     }
   }
 
-  /* =========================
-     DOTS
-  ========================= */
+  /* =======================================================
+     DOT NAVIGATION
+  ======================================================= */
 
   &__dots {
     position: absolute;
-    z-index: 7;
 
     left: 50%;
     bottom: 48px;
 
+    z-index: 12;
+
     display: flex;
     align-items: center;
+
     gap: 7px;
 
     transform: translateX(-50%);
@@ -466,31 +949,45 @@
     background: rgba(255, 255, 255, 0.35);
 
     transition:
-      width 0.25s ease,
-      background 0.25s ease,
-      transform 0.25s ease;
+      width 0.35s ease,
+      background 0.35s ease,
+      transform 0.35s ease,
+      box-shadow 0.35s ease;
 
     &:hover {
       transform: scale(1.3);
+
+      background: rgba(255, 255, 255, 0.65);
+    }
+
+    &:focus-visible {
+      outline: 2px solid #b8ff3d;
+      outline-offset: 4px;
     }
   }
 
   &__dot--active {
     width: 24px;
+
     border-radius: 999px;
+
     background: #b8ff3d;
+
+    box-shadow:
+      0 0 14px rgba(184, 255, 61, 0.35);
   }
 
-  /* =========================
-     FLOATING CARD
-  ========================= */
+  /* =======================================================
+     FLOATING 24/7 CARD
+  ======================================================= */
 
   &__floating-card {
     position: absolute;
-    z-index: 6;
 
     left: 0;
     bottom: 0;
+
+    z-index: 11;
 
     padding: 13px 16px;
 
@@ -505,36 +1002,55 @@
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
 
+    box-shadow:
+      0 18px 45px rgba(0, 0, 0, 0.35);
+
+    animation:
+      heroFloatingCard
+      4.5s
+      ease-in-out
+      infinite;
+
     strong {
       color: #ffffff;
+
       font-family: var(--font-heading);
+
       font-size: 29px;
       line-height: 0.9;
     }
 
     span {
       margin-top: 6px;
+
       color: #697269;
+
       font-size: 7px;
       font-weight: 800;
+
       letter-spacing: 0.13em;
     }
   }
 
-  /* =========================
+  /* =======================================================
      BOTTOM FEATURES
-  ========================= */
+  ======================================================= */
 
   &__features {
     position: relative;
+
     z-index: 3;
 
     width: min(1280px, calc(100% - 48px));
     max-width: 100%;
+
     margin: 0 auto;
 
     display: grid;
+
     grid-template-columns: repeat(4, 1fr);
+
+    overflow: hidden;
 
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 16px;
@@ -543,86 +1059,605 @@
 
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
+
+    animation:
+      heroFeaturesReveal
+      1s
+      cubic-bezier(0.22, 1, 0.36, 1)
+      0.6s
+      both;
   }
 
   &__feature {
     min-width: 0;
+
     padding: 20px 24px;
 
     display: flex;
     align-items: center;
+
     gap: 14px;
+
+    transition:
+      background 0.3s ease,
+      transform 0.3s ease;
 
     &:not(:last-child) {
       border-right: 1px solid rgba(255, 255, 255, 0.08);
     }
 
+    &:hover {
+      background: rgba(184, 255, 61, 0.025);
+
+      > span {
+        color: #b8ff3d;
+
+        transform: translateY(-2px);
+      }
+    }
+
     > span {
       color: #b8ff3d;
+
       font-family: var(--font-heading);
+
       font-size: 18px;
       font-weight: 800;
+
+      transition:
+        color 0.3s ease,
+        transform 0.3s ease;
     }
 
     div {
+      min-width: 0;
+
       display: flex;
       flex-direction: column;
+
       gap: 4px;
-      min-width: 0;
     }
 
     strong {
       color: #e9ede8;
+
       font-size: 10px;
       font-weight: 800;
+
       letter-spacing: 0.08em;
     }
 
     small {
       color: #697269;
+
       font-size: 9px;
       line-height: 1.4;
     }
   }
+}
 
-  /* =========================
-     GLOW
-  ========================= */
 
-  &__glow {
-    position: absolute;
-    z-index: -1;
+/* =========================================================
+   CINEMATIC CAMERA MOVEMENTS
+========================================================= */
 
-    border-radius: 50%;
-    pointer-events: none;
+/* 01 — Slow push + left to right */
 
-    &--one {
-      top: -200px;
-      left: -180px;
+@keyframes barwalCinema01 {
+  0% {
+    transform:
+      scale(1.17)
+      translate3d(-2%, 1%, 0);
+  }
 
-      width: 450px;
-      height: 450px;
+  45% {
+    transform:
+      scale(1.09)
+      translate3d(0.5%, -0.2%, 0);
+  }
 
-      background: rgba(184, 255, 61, 0.035);
-      filter: blur(90px);
-    }
-
-    &--two {
-      right: -200px;
-      bottom: -250px;
-
-      width: 500px;
-      height: 500px;
-
-      background: rgba(184, 255, 61, 0.04);
-      filter: blur(100px);
-    }
+  100% {
+    transform:
+      scale(1.035)
+      translate3d(1.2%, -0.6%, 0);
   }
 }
 
-/* =========================================
-   TABLET
-========================================= */
+
+/* 02 — Pull out + right to left */
+
+@keyframes barwalCinema02 {
+  0% {
+    transform:
+      scale(1.04)
+      translate3d(2%, -0.5%, 0);
+  }
+
+  50% {
+    transform:
+      scale(1.1)
+      translate3d(0, 0.3%, 0);
+  }
+
+  100% {
+    transform:
+      scale(1.17)
+      translate3d(-1.8%, 1%, 0);
+  }
+}
+
+
+/* 03 — Vertical cinematic movement */
+
+@keyframes barwalCinema03 {
+  0% {
+    transform:
+      scale(1.16)
+      translate3d(0, 1.5%, 0);
+  }
+
+  50% {
+    transform:
+      scale(1.08)
+      translate3d(0, 0, 0);
+  }
+
+  100% {
+    transform:
+      scale(1.035)
+      translate3d(0, -1.2%, 0);
+  }
+}
+
+
+/* 04 — Diagonal camera */
+
+@keyframes barwalCinema04 {
+  0% {
+    transform:
+      scale(1.06)
+      translate3d(-2%, 0, 0);
+  }
+
+  50% {
+    transform:
+      scale(1.1)
+      translate3d(-0.2%, 0.4%, 0);
+  }
+
+  100% {
+    transform:
+      scale(1.16)
+      translate3d(1.6%, 0.8%, 0);
+  }
+}
+
+
+/* 05 — Slow dramatic push */
+
+@keyframes barwalCinema05 {
+  0% {
+    transform:
+      scale(1.15)
+      translate3d(1.5%, -1%, 0);
+  }
+
+  40% {
+    transform:
+      scale(1.1)
+      translate3d(0.5%, -0.2%, 0);
+  }
+
+  100% {
+    transform:
+      scale(1.035)
+      translate3d(-1%, 0.6%, 0);
+  }
+}
+
+
+/* 06 — Reverse cinematic zoom */
+
+@keyframes barwalCinema06 {
+  0% {
+    transform:
+      scale(1.045)
+      translate3d(-1%, -1.5%, 0);
+  }
+
+  50% {
+    transform:
+      scale(1.1)
+      translate3d(0, 0, 0);
+  }
+
+  100% {
+    transform:
+      scale(1.17)
+      translate3d(1.2%, 1%, 0);
+  }
+}
+
+
+/* 07 — Center reveal */
+
+@keyframes barwalCinema07 {
+  0% {
+    transform:
+      scale(1.18)
+      translate3d(0, -1%, 0);
+  }
+
+  50% {
+    transform:
+      scale(1.08)
+      translate3d(0, 0.2%, 0);
+  }
+
+  100% {
+    transform:
+      scale(1.035)
+      translate3d(0, 1%, 0);
+  }
+}
+
+
+/* 08 — Final diagonal movement */
+
+@keyframes barwalCinema08 {
+  0% {
+    transform:
+      scale(1.05)
+      translate3d(1.7%, 1%, 0);
+  }
+
+  45% {
+    transform:
+      scale(1.1)
+      translate3d(0.2%, 0, 0);
+  }
+
+  100% {
+    transform:
+      scale(1.16)
+      translate3d(-1.7%, -0.7%, 0);
+  }
+}
+
+
+/* =========================================================
+   PROGRESS
+========================================================= */
+
+@keyframes heroProgress {
+  from {
+    width: 0;
+  }
+
+  to {
+    width: 100%;
+  }
+}
+
+
+/* =========================================================
+   LIGHT SWEEP
+========================================================= */
+
+@keyframes heroLightSweep {
+  0% {
+    left: -75%;
+    opacity: 0;
+  }
+
+  12% {
+    opacity: 0.8;
+  }
+
+  48% {
+    opacity: 0.38;
+  }
+
+  70% {
+    left: 135%;
+    opacity: 0;
+  }
+
+  100% {
+    left: 135%;
+    opacity: 0;
+  }
+}
+
+
+/* =========================================================
+   VISUAL GLOW
+========================================================= */
+
+@keyframes heroVisualGlow {
+  0%,
+  100% {
+    opacity: 0.3;
+
+    transform: scale(0.96);
+  }
+
+  50% {
+    opacity: 0.7;
+
+    transform: scale(1.05);
+  }
+}
+
+
+/* =========================================================
+   FLOATING BADGE
+========================================================= */
+
+@keyframes heroFloatingBadge {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: translate3d(0, -7px, 0);
+  }
+}
+
+
+/* =========================================================
+   FLOATING CARD
+========================================================= */
+
+@keyframes heroFloatingCard {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: translate3d(0, 7px, 0);
+  }
+}
+
+
+/* =========================================================
+   EYEBROW
+========================================================= */
+
+@keyframes heroEyebrowReveal {
+  from {
+    opacity: 0;
+
+    transform:
+      translate3d(0, 18px, 0)
+      scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translate3d(0, 0, 0)
+      scale(1);
+  }
+}
+
+
+/* =========================================================
+   TITLE
+========================================================= */
+
+@keyframes heroTitleReveal {
+  from {
+    opacity: 0;
+
+    transform:
+      translate3d(0, 45px, 0)
+      scale(0.97);
+
+    clip-path:
+      inset(0 0 100% 0);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translate3d(0, 0, 0)
+      scale(1);
+
+    clip-path:
+      inset(0 0 0 0);
+  }
+}
+
+
+/* =========================================================
+   CONTENT
+========================================================= */
+
+@keyframes heroContentReveal {
+  from {
+    opacity: 0;
+
+    transform:
+      translate3d(0, 25px, 0);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translate3d(0, 0, 0);
+  }
+}
+
+
+/* =========================================================
+   VISUAL REVEAL
+========================================================= */
+
+@keyframes heroVisualReveal {
+  from {
+    opacity: 0;
+
+    transform:
+      translate3d(60px, 0, 0)
+      scale(0.94);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translate3d(0, 0, 0)
+      scale(1);
+  }
+}
+
+
+/* =========================================================
+   IMAGE CONTENT
+========================================================= */
+
+@keyframes heroImageContentReveal {
+  from {
+    opacity: 0;
+
+    transform:
+      translate3d(0, 18px, 0);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translate3d(0, 0, 0);
+  }
+}
+
+
+/* =========================================================
+   COUNTER
+========================================================= */
+
+@keyframes heroCounterChange {
+  from {
+    opacity: 0;
+
+    transform:
+      translate3d(0, 8px, 0);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translate3d(0, 0, 0);
+  }
+}
+
+
+/* =========================================================
+   FEATURES
+========================================================= */
+
+@keyframes heroFeaturesReveal {
+  from {
+    opacity: 0;
+
+    transform:
+      translate3d(0, 25px, 0);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translate3d(0, 0, 0);
+  }
+}
+
+
+/* =========================================================
+   DOT PULSE
+========================================================= */
+
+@keyframes heroDotPulse {
+  0%,
+  100% {
+    opacity: 0.7;
+
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+
+    transform: scale(1.15);
+  }
+}
+
+
+/* =========================================================
+   GREEN TEXT PULSE
+========================================================= */
+
+@keyframes heroGreenPulse {
+  0%,
+  100% {
+    text-shadow:
+      0 0 20px rgba(184, 255, 61, 0.04);
+  }
+
+  50% {
+    text-shadow:
+      0 0 35px rgba(184, 255, 61, 0.15);
+  }
+}
+
+
+/* =========================================================
+   BACKGROUND GLOW 1
+========================================================= */
+
+@keyframes heroBackgroundGlowOne {
+  0%,
+  100% {
+    transform:
+      translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform:
+      translate3d(35px, 25px, 0);
+  }
+}
+
+
+/* =========================================================
+   BACKGROUND GLOW 2
+========================================================= */
+
+@keyframes heroBackgroundGlowTwo {
+  0%,
+  100% {
+    transform:
+      translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform:
+      translate3d(-30px, -25px, 0);
+  }
+}
+
+
+/* =========================================================
+   TABLET — 1050px
+========================================================= */
 
 @media (max-width: 1050px) {
   .hero {
@@ -635,7 +1670,8 @@
     }
 
     &__title {
-      font-size: clamp(56px, 7vw, 82px);
+      font-size:
+        clamp(56px, 7vw, 82px);
     }
 
     &__visual {
@@ -643,7 +1679,8 @@
     }
 
     &__features {
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns:
+        repeat(2, 1fr);
     }
 
     &__feature {
@@ -652,18 +1689,22 @@
       }
 
       &:nth-child(-n + 2) {
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        border-bottom:
+          1px solid rgba(255, 255, 255, 0.08);
       }
     }
   }
 }
 
-/* =========================================
-   MOBILE
-========================================= */
+
+/* =========================================================
+   MOBILE — 800px
+========================================================= */
 
 @media (max-width: 800px) {
   .hero {
+    min-height: auto;
+
     &__container {
       width: calc(100% - 28px);
 
@@ -685,7 +1726,9 @@
 
     &__title {
       margin-inline: auto;
-      font-size: clamp(55px, 14vw, 80px);
+
+      font-size:
+        clamp(55px, 14vw, 80px);
     }
 
     &__description {
@@ -705,55 +1748,126 @@
       height: 470px;
     }
 
+    &__image-card {
+      inset:
+        15px 10px 25px;
+
+      border-radius: 17px;
+    }
+
+    &__image-content {
+      left: 23px;
+      bottom: 27px;
+
+      span {
+        font-size: 18px;
+      }
+
+      strong {
+        font-size:
+          clamp(38px, 9vw, 54px);
+      }
+    }
+
+    &__counter {
+      right: 22px;
+      bottom: 27px;
+    }
+
+    &__progress {
+      left: 23px;
+      right: 23px;
+      bottom: 17px;
+    }
+
+    &__badge {
+      top: 0;
+      right: 0;
+
+      min-width: 150px;
+
+      padding: 13px 15px;
+    }
+
+    &__floating-card {
+      left: 0;
+      bottom: 0;
+
+      padding: 11px 13px;
+
+      strong {
+        font-size: 25px;
+      }
+    }
+
+    &__dots {
+      bottom: 48px;
+    }
+
     &__features {
       width: calc(100% - 28px);
+
       grid-template-columns: 1fr;
+
       margin-bottom: 25px;
     }
 
     &__feature {
       &:not(:last-child) {
         border-right: 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+
+        border-bottom:
+          1px solid rgba(255, 255, 255, 0.08);
       }
     }
   }
 }
 
-/* =========================================
-   SMALL MOBILE
-========================================= */
+
+/* =========================================================
+   SMALL MOBILE — 520px
+========================================================= */
 
 @media (max-width: 520px) {
   .hero {
     &__container {
       width: calc(100% - 20px);
+
       padding-top: 98px;
+
       gap: 35px;
     }
 
     &__eyebrow {
       max-width: 100%;
+
       padding: 8px 11px;
 
       font-size: 7px;
+
       letter-spacing: 0.1em;
     }
 
     &__title {
-      font-size: clamp(46px, 14.5vw, 65px);
+      font-size:
+        clamp(46px, 14.5vw, 65px);
+
       line-height: 0.85;
     }
 
     &__description {
       margin-top: 21px;
+
       font-size: 12px;
+
       line-height: 1.7;
     }
 
     &__actions {
       width: 100%;
+
       margin-top: 27px;
+
       flex-direction: column;
     }
 
@@ -764,8 +1878,11 @@
 
     &__meta {
       width: 100%;
+
       margin-top: 30px;
+
       gap: 10px;
+
       justify-content: space-between;
     }
 
@@ -794,7 +1911,8 @@
     }
 
     &__image-card {
-      inset: 18px 8px 22px;
+      inset:
+        18px 8px 22px;
 
       border-radius: 15px;
     }
@@ -825,9 +1943,17 @@
       }
     }
 
+    &__progress {
+      left: 18px;
+      right: 18px;
+      bottom: 14px;
+    }
+
     &__badge {
       right: -1px;
+
       min-width: 140px;
+
       padding: 12px 14px;
 
       font-size: 7px;
@@ -844,6 +1970,7 @@
     &__floating-card {
       left: 0;
       bottom: 0;
+
       padding: 10px 12px;
 
       strong {
@@ -857,6 +1984,7 @@
 
     &__dots {
       bottom: 40px;
+
       gap: 6px;
     }
 
@@ -879,14 +2007,19 @@
   }
 }
 
-/* =========================================
-   320px
-========================================= */
+
+/* =========================================================
+   320px — EXTRA SAFE
+========================================================= */
 
 @media (max-width: 360px) {
   .hero {
     &__container {
       width: calc(100% - 16px);
+
+      padding-top: 92px;
+
+      gap: 30px;
     }
 
     &__title {
@@ -901,10 +2034,29 @@
       font-size: 11px;
     }
 
+    &__meta {
+      gap: 7px;
+    }
+
     &__meta-item {
+      gap: 5px;
+
+      svg {
+        width: 13px;
+        height: 13px;
+      }
+
+      span {
+        font-size: 5px;
+      }
+
       strong {
         font-size: 7px;
       }
+    }
+
+    &__divider {
+      height: 22px;
     }
 
     &__visual {
@@ -912,28 +2064,95 @@
     }
 
     &__image-card {
-      inset: 15px 5px 20px;
+      inset:
+        15px 5px 20px;
+
+      border-radius: 13px;
     }
 
     &__image-content {
       left: 14px;
+      bottom: 18px;
+
+      span {
+        font-size: 12px;
+      }
 
       strong {
         font-size: 31px;
       }
     }
 
+    &__counter {
+      right: 14px;
+      bottom: 18px;
+
+      strong {
+        font-size: 18px;
+      }
+
+      span {
+        font-size: 8px;
+      }
+    }
+
+    &__progress {
+      left: 14px;
+      right: 14px;
+      bottom: 11px;
+    }
+
     &__badge {
       min-width: 125px;
+
       padding: 10px 11px;
+
+      font-size: 6px;
+
+      span {
+        font-size: 10px;
+      }
+
+      small {
+        font-size: 5px;
+      }
     }
 
     &__floating-card {
       padding: 8px 10px;
+
+      strong {
+        font-size: 21px;
+      }
+
+      span {
+        font-size: 5px;
+      }
+    }
+
+    &__dots {
+      bottom: 34px;
+
+      gap: 5px;
+    }
+
+    &__dot {
+      width: 5px;
+      height: 5px;
+    }
+
+    &__dot--active {
+      width: 18px;
     }
 
     &__feature {
       padding: 15px 12px;
+
+      gap: 10px;
+
+      > span {
+        font-size: 16px;
+      }
 
       strong {
         font-size: 9px;
@@ -943,5 +2162,24 @@
         font-size: 8px;
       }
     }
+  }
+}
+
+
+/* =========================================================
+   REDUCED MOTION / ACCESSIBILITY
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .hero *,
+  .hero *::before,
+  .hero *::after {
+    animation-duration: 0.01ms !important;
+
+    animation-iteration-count: 1 !important;
+
+    scroll-behavior: auto !important;
+
+    transition-duration: 0.01ms !important;
   }
 }
