@@ -1,27 +1,53 @@
-import { ArrowRight, CalendarDays, MapPin, Play } from 'lucide-react';
+import {
+  ArrowRight,
+  CalendarDays,
+  MapPin,
+  Play,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
+
 import './Hero.scss';
 
 const heroImages = [
   {
     src: '/images/barwal-1.webp',
     alt: 'Barwal Box Cricket ground',
+    position: 'center center',
   },
   {
     src: '/images/barwal-2.webp',
     alt: 'Barwal Box Cricket turf',
+    position: 'center center',
   },
   {
     src: '/images/barwal-3.webp',
     alt: 'Barwal Box Cricket playing area',
+    position: 'center center',
   },
   {
     src: '/images/barwal-4.webp',
     alt: 'Barwal Box Cricket night view',
+    position: 'center center',
   },
   {
     src: '/images/barwal-5.webp',
     alt: 'Barwal Box Cricket',
+    position: 'center center',
+  },
+  {
+    src: '/images/barwal-6.webp',
+    alt: 'Barwal Box Cricket ground',
+    position: 'center center',
+  },
+  {
+    src: '/images/barwal-7.webp',
+    alt: 'Barwal Box Cricket playing area',
+    position: 'center center',
+  },
+  {
+    src: '/images/barwal-8.webp',
+    alt: 'Barwal Box Cricket experience',
+    position: 'center center',
   },
 ];
 
@@ -34,7 +60,7 @@ function Hero() {
 
     const interval = setInterval(() => {
       setActiveImage((current) => (current + 1) % heroImages.length);
-    }, 4000);
+    }, 4500);
 
     return () => clearInterval(interval);
   }, [isPaused]);
@@ -71,6 +97,7 @@ function Hero() {
           </p>
 
           <div className="hero__actions">
+
             <a href="#booking" className="hero__primary">
               <CalendarDays size={18} />
               <span>Book Your Slot</span>
@@ -81,6 +108,7 @@ function Hero() {
               <Play size={16} />
               <span>Explore Ground</span>
             </a>
+
           </div>
 
           <div className="hero__meta">
@@ -106,10 +134,10 @@ function Hero() {
             </div>
 
           </div>
+
         </div>
 
-
-        {/* RIGHT IMAGE SLIDER */}
+        {/* RIGHT CINEMATIC VISUAL */}
         <div
           className="hero__visual"
           onMouseEnter={() => setIsPaused(true)}
@@ -120,26 +148,52 @@ function Hero() {
 
           <div className="hero__image-card">
 
-            {heroImages.map((image, index) => (
-              <img
-                key={image.src}
-                src={image.src}
-                alt={image.alt}
-                className={`hero__slide ${
-                  index === activeImage ? 'hero__slide--active' : ''
-                }`}
-              />
-            ))}
+            {/* CINEMATIC PHOTO SEQUENCE */}
+            <div className="hero__slides">
 
+              {heroImages.map((image, index) => (
+                <div
+                  key={image.src}
+                  className={`
+                    hero__slide
+                    hero__slide--motion-${index + 1}
+                    ${index === activeImage ? 'hero__slide--active' : ''}
+                    ${
+                      index ===
+                      (activeImage + 1) % heroImages.length
+                        ? 'hero__slide--next'
+                        : ''
+                    }
+                  `}
+                >
+                  <img
+                    src={image.src}
+                    alt={image.alt}
+                    loading={index === 0 ? 'eager' : 'lazy'}
+                    decoding="async"
+                    style={{
+                      objectPosition: image.position,
+                    }}
+                  />
+                </div>
+              ))}
+
+            </div>
+
+            {/* CINEMATIC OVERLAYS */}
             <div className="hero__image-overlay" />
+            <div className="hero__image-vignette" />
+            <div className="hero__image-light" />
 
+            {/* BRAND */}
             <div className="hero__image-content">
               <span>BARWAL</span>
               <strong>BOX CRICKET</strong>
             </div>
 
+            {/* COUNTER */}
             <div className="hero__counter">
-              <strong>
+              <strong key={activeImage}>
                 {String(activeImage + 1).padStart(2, '0')}
               </strong>
 
@@ -148,8 +202,15 @@ function Hero() {
               </span>
             </div>
 
-          </div>
+            {/* PROGRESS */}
+            <div className="hero__progress">
+              <span
+                key={activeImage}
+                className="hero__progress-bar"
+              />
+            </div>
 
+          </div>
 
           {/* TOP BADGE */}
           <div className="hero__badge">
@@ -158,14 +219,17 @@ function Hero() {
             <small>PLAYING EXPERIENCE</small>
           </div>
 
-
-          {/* DOTS */}
+          {/* DOT NAVIGATION */}
           <div className="hero__dots">
+
             {heroImages.map((image, index) => (
               <button
                 key={image.src}
                 type="button"
                 aria-label={`Show image ${index + 1}`}
+                aria-current={
+                  index === activeImage ? 'true' : undefined
+                }
                 className={
                   index === activeImage
                     ? 'hero__dot hero__dot--active'
@@ -174,8 +238,8 @@ function Hero() {
                 onClick={() => changeImage(index)}
               />
             ))}
-          </div>
 
+          </div>
 
           {/* BOTTOM INFO */}
           <div className="hero__floating-card">
@@ -185,7 +249,6 @@ function Hero() {
 
         </div>
       </div>
-
 
       {/* BOTTOM FEATURES */}
       <div className="hero__features">
@@ -223,7 +286,6 @@ function Hero() {
         </div>
 
       </div>
-
     </section>
   );
 }

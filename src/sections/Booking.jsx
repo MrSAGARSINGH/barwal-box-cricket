@@ -14,6 +14,14 @@ import { useEffect, useState } from 'react';
 import useBooking from '../hooks/useBooking';
 import { createBookingWhatsAppUrl } from '../services/whatsappService';
 
+import {
+  createPaymentOrder,
+  verifyPayment,
+  loadRazorpayScript,
+} from '../services/paymentService';
+
+import { createBooking } from '../services/bookingService';
+
 import './Booking.scss';
 
 const slots = [
@@ -29,10 +37,7 @@ const slots = [
 
 function Booking() {
   const {
-    loading,
-    booking,
     error,
-    bookSlot,
     getBookedSlots,
   } = useBooking();
 
@@ -53,6 +58,18 @@ function Booking() {
 
   const [success, setSuccess] = useState(false);
   const [slotError, setSlotError] = useState('');
+
+  const [confirmedBooking, setConfirmedBooking] = useState(null);
+  const [paymentLoading, setPaymentLoading] = useState(false);
+
+  /* =========================
+     CUSTOM TIME STATE
+  ========================= */
+
+  const [customHour, setCustomHour] = useState('06');
+  const [customMinute, setCustomMinute] = useState('30');
+  const [customPeriod, setCustomPeriod] = useState('PM');
+  const [showCustomTime, setShowCustomTime] = useState(false);
 
   const today = new Date()
     .toISOString()
@@ -77,6 +94,29 @@ function Booking() {
   };
 
   /* =========================
+     CUSTOM TIME HELPERS
+  ========================= */
+
+  const getCustomTimeLabel = () =>
+    `${customHour}:${customMinute} ${customPeriod}`;
+
+  const handleCustomTime = () => {
+    const formattedTime = getCustomTimeLabel();
+
+    if (bookedSlots.includes(formattedTime)) {
+      setSlotError(
+        'This time has already been booked. Please choose another time.'
+      );
+
+      return;
+    }
+
+    setSelectedSlot(formattedTime);
+    setShowCustomTime(false);
+    setSlotError('');
+  };
+
+  /* =========================
      FETCH BOOKED SLOTS
   ========================= */
 
@@ -92,14 +132,15 @@ function Booking() {
       setSlotsLoading(true);
       setBookedSlots([]);
       setSelectedSlot('');
+
+      setCustomHour('06');
+      setCustomMinute('30');
+      setCustomPeriod('PM');
+
+      setShowCustomTime(false);
       setSlotError('');
 
       try {
-        /*
-         * Venue is sent along with date so that
-         * Box Cricket and Ground can have
-         * independent availability.
-         */
         const result = await getBookedSlots(
           date,
           venue
@@ -144,14 +185,17 @@ function Booking() {
 
     setVenue(selectedVenue);
 
-    /*
-     * Slot availability is different
-     * for each venue.
-     */
     setSelectedSlot('');
     setBookedSlots([]);
+
+    setCustomHour('06');
+    setCustomMinute('30');
+    setCustomPeriod('PM');
+
+    setShowCustomTime(false);
     setSlotError('');
     setSuccess(false);
+    setConfirmedBooking(null);
   };
 
   /* =========================
@@ -160,8 +204,16 @@ function Booking() {
 
   const handleDateChange = (event) => {
     setDate(event.target.value);
+
     setSelectedSlot('');
+
+    setCustomHour('06');
+    setCustomMinute('30');
+    setCustomPeriod('PM');
+
+    setShowCustomTime(false);
     setSuccess(false);
+    setConfirmedBooking(null);
     setSlotError('');
   };
 
@@ -181,11 +233,41 @@ function Booking() {
   };
 
   /* =========================
-     BOOK SLOT
+     SELECT NORMAL SLOT
+  ========================= */
+
+  const handleSlotSelect = (slot) => {
+    setSelectedSlot(slot);
+
+    setCustomHour('06');
+    setCustomMinute('30');
+    setCustomPeriod('PM');
+
+    setShowCustomTime(false);
+    setSlotError('');
+  };
+
+  /* =========================
+     OPEN CUSTOM TIME
+  ========================= */
+
+  const handleOpenCustomTime = () => {
+    setShowCustomTime(true);
+
+    setSelectedSlot('');
+    setSlotError('');
+  };
+
+  /* =========================
+     PAY NOW + BOOK SLOT
   ========================= */
 
   const handleBooking = async (event) => {
     event.preventDefault();
+
+    if (paymentLoading) {
+      return;
+    }
 
     if (!date) {
       alert('Please select a date.');
@@ -203,9 +285,7 @@ function Booking() {
     }
 
     if (phone.length !== 10) {
-      alert(
-        'Please enter a valid 10-digit phone number.'
-      );
+      alert('Please enter a valid 10-digit phone number.');
       return;
     }
 
@@ -215,35 +295,266 @@ function Booking() {
       );
 
       setSelectedSlot('');
-
       return;
     }
 
-    const result = await bookSlot({
-      venue,
-      date,
-      slot: selectedSlot,
-      name: name.trim(),
-      phone,
-    });
+    try {
+      setSlotError('');
+      setPaymentLoading(true);
 
-    if (result.success) {
-      setSuccess(true);
+      /* =========================
+         STEP 1
+         CREATE PENDING BOOKING
+      ========================= */
 
-      try {
-        const updatedSlots =
-          await getBookedSlots(
-            date,
-            venue
-          );
+      const newBooking = await createBooking({
+        venue,
+        date,
+        slot: selectedSlot,
+        name: name.trim(),
+        phone,
+      });
 
-        setBookedSlots(updatedSlots);
-      } catch (err) {
-        console.error(
-          'Unable to refresh slots:',
-          err
+      if (!newBooking?._id) {
+        throw new Error(
+          'Unable to create booking reference.'
         );
       }
+
+      /* =========================
+         STEP 2
+         LOAD RAZORPAY
+      ========================= */
+
+      const razorpayLoaded =
+        await loadRazorpayScript();
+
+      if (!razorpayLoaded) {
+        throw new Error(
+          'Unable to load Razorpay Checkout. Please try again.'
+        );
+      }
+
+      /* =========================
+         STEP 3
+         CREATE PAYMENT ORDER
+      ========================= */
+
+      const paymentData =
+        await createPaymentOrder(
+          newBooking._id
+        );
+
+      if (!paymentData?.order?.id) {
+        throw new Error(
+          'Unable to create payment order.'
+        );
+      }
+
+      /* =========================
+         STEP 4
+         RAZORPAY CHECKOUT
+      ========================= */
+
+      const razorpayOptions = {
+        key: import.meta.env
+          .VITE_RAZORPAY_KEY_ID,
+
+        amount:
+          paymentData.order.amount,
+
+        currency:
+          paymentData.order.currency || 'INR',
+
+        name: 'BARWAL BOX CRICKET',
+
+        description:
+          `${
+            venue === 'box-cricket'
+              ? 'Box Cricket'
+              : 'Cricket Ground'
+          } Booking`,
+
+        order_id:
+          paymentData.order.id,
+
+        prefill: {
+          name: name.trim(),
+          contact: phone,
+        },
+
+        notes: {
+          bookingId:
+            newBooking.bookingId,
+
+          venue,
+
+          date,
+
+          slot: selectedSlot,
+        },
+
+        theme: {
+          color: '#b8ff3d',
+        },
+
+        /* =========================
+           PAYMENT SUCCESS
+        ========================= */
+
+        handler: async (response) => {
+          try {
+            setSlotError('');
+
+            /* =========================
+               STEP 5
+               VERIFY PAYMENT
+            ========================= */
+
+            const verified =
+              await verifyPayment({
+                bookingId:
+                  newBooking._id,
+
+                razorpay_order_id:
+                  response.razorpay_order_id,
+
+                razorpay_payment_id:
+                  response.razorpay_payment_id,
+
+                razorpay_signature:
+                  response.razorpay_signature,
+              });
+
+            if (!verified?.success) {
+              throw new Error(
+                'Payment verification failed.'
+              );
+            }
+
+            /* =========================
+               STEP 6
+               STORE CONFIRMED BOOKING
+            ========================= */
+
+            const finalBooking = {
+              ...newBooking,
+
+              paymentId:
+                response.razorpay_payment_id,
+
+              paymentStatus: 'paid',
+
+              status: 'confirmed',
+            };
+
+            setConfirmedBooking(
+              finalBooking
+            );
+
+            setPaymentLoading(false);
+            setSuccess(true);
+
+            /* =========================
+               REFRESH SLOTS
+            ========================= */
+
+            try {
+              const updatedSlots =
+                await getBookedSlots(
+                  date,
+                  venue
+                );
+
+              setBookedSlots(
+                updatedSlots
+              );
+            } catch (refreshError) {
+              console.error(
+                'Unable to refresh slots:',
+                refreshError
+              );
+            }
+          } catch (paymentError) {
+            console.error(
+              'Payment verification error:',
+              paymentError
+            );
+
+            setPaymentLoading(false);
+
+            setSlotError(
+              paymentError.message ||
+                'Payment verification failed. Please contact Barwal Box Cricket.'
+            );
+          }
+        },
+
+        /* =========================
+           CHECKOUT CLOSED
+        ========================= */
+
+        modal: {
+          ondismiss: () => {
+            setPaymentLoading(false);
+
+            setSlotError(
+              'Payment cancelled. Your booking is not confirmed.'
+            );
+          },
+        },
+      };
+
+      /* =========================
+         STEP 7
+         OPEN RAZORPAY
+      ========================= */
+
+      if (!window.Razorpay) {
+        throw new Error(
+          'Razorpay Checkout is not available.'
+        );
+      }
+
+      const razorpay =
+        new window.Razorpay(
+          razorpayOptions
+        );
+
+      /* =========================
+         PAYMENT FAILED
+      ========================= */
+
+      razorpay.on(
+        'payment.failed',
+        (response) => {
+          console.error(
+            'Razorpay payment failed:',
+            response?.error
+          );
+
+          setPaymentLoading(false);
+
+          setSlotError(
+            response?.error?.description ||
+              'Payment failed. Please try again.'
+          );
+        }
+      );
+
+      razorpay.open();
+    } catch (bookingError) {
+      console.error(
+        'Booking/payment error:',
+        bookingError
+      );
+
+      setPaymentLoading(false);
+
+      setSlotError(
+        bookingError.message ||
+          'Unable to start payment. Please try again.'
+      );
     }
   };
 
@@ -252,10 +563,14 @@ function Booking() {
   ========================= */
 
   const handleWhatsApp = () => {
-    if (!booking) return;
+    if (!confirmedBooking) {
+      return;
+    }
 
     window.open(
-      createBookingWhatsAppUrl(booking),
+      createBookingWhatsAppUrl(
+        confirmedBooking
+      ),
       '_blank',
       'noopener,noreferrer'
     );
@@ -267,10 +582,27 @@ function Booking() {
 
   const handleNewBooking = () => {
     setSuccess(false);
+
+    setConfirmedBooking(null);
+    setPaymentLoading(false);
+
     setSelectedSlot('');
+
+    setCustomHour('06');
+    setCustomMinute('30');
+    setCustomPeriod('PM');
+
+    setShowCustomTime(false);
+
     setName('');
     setPhone('');
+
+    setSlotError('');
   };
+
+  /* =========================
+     RENDER
+  ========================= */
 
   return (
     <section
@@ -292,7 +624,9 @@ function Booking() {
 
             <h2>
               PICK YOUR
-              <span>PERFECT SLOT.</span>
+              <span>
+                PERFECT SLOT.
+              </span>
             </h2>
           </div>
 
@@ -320,6 +654,7 @@ function Booking() {
 
               <div>
                 <strong>BARWAL</strong>
+
                 <small>
                   BOX CRICKET &amp; GROUND
                 </small>
@@ -327,19 +662,21 @@ function Booking() {
             </div>
 
             <div className="booking__info-content">
-
-              <span>READY TO PLAY?</span>
+              <span>
+                READY TO PLAY?
+              </span>
 
               <h3>
                 YOUR
-                <strong>GAME AWAITS.</strong>
+                <strong>
+                  GAME AWAITS.
+                </strong>
               </h3>
 
               <p>
                 Choose your game space and preferred
                 slot. Get your squad ready for the game.
               </p>
-
             </div>
 
             <div className="booking__info-list">
@@ -348,7 +685,10 @@ function Booking() {
                 <Clock3 size={17} />
 
                 <span>
-                  <strong>OPEN 24 HOURS</strong>
+                  <strong>
+                    OPEN 24 HOURS
+                  </strong>
+
                   Flexible playing hours
                 </span>
               </div>
@@ -357,7 +697,10 @@ function Booking() {
                 <MapPin size={17} />
 
                 <span>
-                  <strong>GONER ROAD</strong>
+                  <strong>
+                    GONER ROAD
+                  </strong>
+
                   Jaipur, Rajasthan
                 </span>
               </div>
@@ -375,7 +718,6 @@ function Booking() {
               </div>
 
             </div>
-
           </aside>
 
           {/* =========================
@@ -394,6 +736,7 @@ function Booking() {
             <div className="booking__venue">
 
               <div className="booking__venue-head">
+
                 <div className="booking__section-head">
                   <span>01</span>
 
@@ -407,6 +750,7 @@ function Booking() {
                     </small>
                   </div>
                 </div>
+
               </div>
 
               <div
@@ -437,7 +781,10 @@ function Booking() {
                   </span>
 
                   <span>
-                    <strong>BOX CRICKET</strong>
+                    <strong>
+                      BOX CRICKET
+                    </strong>
+
                     <small>
                       Premium box cricket
                     </small>
@@ -466,7 +813,10 @@ function Booking() {
                   </span>
 
                   <span>
-                    <strong>CRICKET GROUND</strong>
+                    <strong>
+                      CRICKET GROUND
+                    </strong>
+
                     <small>
                       Full ground booking
                     </small>
@@ -482,7 +832,6 @@ function Booking() {
                 />
 
               </div>
-
             </div>
 
             {/* =========================
@@ -518,7 +867,6 @@ function Booking() {
                 />
 
               </label>
-
             </div>
 
             {/* =========================
@@ -540,7 +888,7 @@ function Booking() {
                       ? 'Select a date first'
                       : slotsLoading
                         ? 'Checking availability...'
-                        : `${slots.length - bookedSlots.length} slots available`}
+                        : 'Choose an available time'}
                   </small>
                 </div>
               </div>
@@ -553,8 +901,11 @@ function Booking() {
 
               <div className="booking__slots">
 
-                {slots.map((slot) => {
+                {/* =========================
+                    NORMAL SLOTS
+                ========================= */}
 
+                {slots.map((slot) => {
                   const isBooked =
                     bookedSlots.includes(slot);
 
@@ -582,10 +933,9 @@ function Booking() {
                           : ''
                       }`}
                       onClick={() =>
-                        setSelectedSlot(slot)
+                        handleSlotSelect(slot)
                       }
                     >
-
                       <span>
                         {slot}
                       </span>
@@ -602,13 +952,230 @@ function Booking() {
                             SELECTED
                           </small>
                         )}
-
                     </button>
                   );
                 })}
 
-              </div>
+                {/* =========================
+                    CUSTOM TIME BUTTON
+                ========================= */}
 
+                {!showCustomTime ? (
+                  <button
+                    type="button"
+                    disabled={
+                      !date ||
+                      slotsLoading
+                    }
+                    className={`booking__slot booking__slot--custom ${
+                      selectedSlot &&
+                      !slots.includes(
+                        selectedSlot
+                      )
+                        ? 'booking__slot--active'
+                        : ''
+                    }`}
+                    onClick={
+                      handleOpenCustomTime
+                    }
+                  >
+                    <span className="booking__custom-icon">
+                      +
+                    </span>
+
+                    <span className="booking__custom-label">
+                      CUSTOM TIME
+                    </span>
+
+                    {selectedSlot &&
+                      !slots.includes(
+                        selectedSlot
+                      ) && (
+                        <small className="booking__custom-selected">
+                          {selectedSlot}
+                        </small>
+                      )}
+                  </button>
+                ) : (
+                  <div className="booking__custom-time">
+
+                    <div className="booking__custom-heading">
+                      <div>
+                        <strong>
+                          SET CUSTOM TIME
+                        </strong>
+
+                        <span>
+                          Choose the exact time you want to play
+                        </span>
+                      </div>
+
+                      <button
+                        type="button"
+                        className="booking__custom-close"
+                        onClick={() => {
+                          setShowCustomTime(
+                            false
+                          );
+                          setSlotError('');
+                        }}
+                        aria-label="Close custom time picker"
+                      >
+                        ×
+                      </button>
+                    </div>
+
+                    <div className="booking__custom-controls">
+
+                      <div className="booking__custom-control">
+                        <label htmlFor="custom-hour">
+                          HOUR
+                        </label>
+
+                        <select
+                          id="custom-hour"
+                          value={customHour}
+                          onChange={(event) => {
+                            setCustomHour(
+                              event.target.value
+                            );
+                            setSlotError('');
+                          }}
+                        >
+                          {Array.from(
+                            { length: 12 },
+                            (_, index) => {
+                              const hour =
+                                String(
+                                  index + 1
+                                ).padStart(
+                                  2,
+                                  '0'
+                                );
+
+                              return (
+                                <option
+                                  value={hour}
+                                  key={hour}
+                                >
+                                  {hour}
+                                </option>
+                              );
+                            }
+                          )}
+                        </select>
+                      </div>
+
+                      <span className="booking__custom-colon">
+                        :
+                      </span>
+
+                      <div className="booking__custom-control">
+                        <label htmlFor="custom-minute">
+                          MINUTE
+                        </label>
+
+                        <select
+                          id="custom-minute"
+                          value={customMinute}
+                          onChange={(event) => {
+                            setCustomMinute(
+                              event.target.value
+                            );
+                            setSlotError('');
+                          }}
+                        >
+                          <option value="00">
+                            00
+                          </option>
+
+                          <option value="15">
+                            15
+                          </option>
+
+                          <option value="30">
+                            30
+                          </option>
+
+                          <option value="45">
+                            45
+                          </option>
+                        </select>
+                      </div>
+
+                      <div className="booking__custom-period">
+
+                        <button
+                          type="button"
+                          className={
+                            customPeriod === 'AM'
+                              ? 'active'
+                              : ''
+                          }
+                          onClick={() => {
+                            setCustomPeriod(
+                              'AM'
+                            );
+                            setSlotError('');
+                          }}
+                        >
+                          AM
+                        </button>
+
+                        <button
+                          type="button"
+                          className={
+                            customPeriod === 'PM'
+                              ? 'active'
+                              : ''
+                          }
+                          onClick={() => {
+                            setCustomPeriod(
+                              'PM'
+                            );
+                            setSlotError('');
+                          }}
+                        >
+                          PM
+                        </button>
+
+                      </div>
+                    </div>
+
+                    <div className="booking__custom-preview">
+                      <div>
+                        <span>
+                          YOUR CUSTOM SLOT
+                        </span>
+
+                        <small>
+                          This time will be checked for availability
+                        </small>
+                      </div>
+
+                      <strong>
+                        {getCustomTimeLabel()}
+                      </strong>
+                    </div>
+
+                    <button
+                      type="button"
+                      className="booking__custom-time-add"
+                      onClick={
+                        handleCustomTime
+                      }
+                    >
+                      <span>
+                        ADD {getCustomTimeLabel()} SLOT
+                      </span>
+
+                      <ArrowRight size={16} />
+                    </button>
+
+                  </div>
+                )}
+
+              </div>
             </div>
 
             {/* =========================
@@ -634,7 +1201,6 @@ function Booking() {
               <div className="booking__fields">
 
                 <label>
-
                   <UserRound size={16} />
 
                   <input
@@ -650,11 +1216,9 @@ function Booking() {
                     autoComplete="name"
                     required
                   />
-
                 </label>
 
                 <label>
-
                   <span className="booking__country">
                     +91
                   </span>
@@ -663,17 +1227,17 @@ function Booking() {
                     type="tel"
                     placeholder="10-digit mobile number"
                     value={phone}
-                    onChange={handlePhoneChange}
+                    onChange={
+                      handlePhoneChange
+                    }
                     inputMode="numeric"
                     maxLength={10}
                     autoComplete="tel"
                     required
                   />
-
                 </label>
 
               </div>
-
             </div>
 
             {/* =========================
@@ -691,34 +1255,31 @@ function Booking() {
             ========================= */}
 
             {!success ? (
-
               <button
                 type="submit"
                 className="booking__submit"
                 disabled={
-                  loading ||
+                  paymentLoading ||
                   slotsLoading ||
                   !date ||
-                  !selectedSlot
+                  !selectedSlot ||
+                  !name.trim() ||
+                  phone.length !== 10
                 }
               >
-
-                {loading ? (
+                {paymentLoading ? (
                   <>
-                    CONFIRMING...
+                    PROCESSING...
                     <span className="booking__loader" />
                   </>
                 ) : (
                   <>
-                    CHECK &amp; BOOK SLOT
+                    PAY ₹1 &amp; BOOK
                     <ArrowRight size={18} />
                   </>
                 )}
-
               </button>
-
             ) : (
-
               <div className="booking__success">
 
                 <div className="booking__success-icon">
@@ -726,26 +1287,27 @@ function Booking() {
                 </div>
 
                 <div>
-
                   <strong>
-                    BOOKING CREATED
+                    BOOKING CONFIRMED
                   </strong>
 
                   <span>
                     Booking ID:{' '}
-                    {booking?.bookingId}
+                    {confirmedBooking?.bookingId}
                   </span>
 
                   <small>
-                    {booking?.date} ·{' '}
-                    {booking?.slot}
+                    {confirmedBooking?.date}
+                    {' · '}
+                    {confirmedBooking?.slot}
                   </small>
-
                 </div>
 
                 <button
                   type="button"
-                  onClick={handleWhatsApp}
+                  onClick={
+                    handleWhatsApp
+                  }
                 >
                   <MessageCircle size={17} />
                   SEND ON WHATSAPP
@@ -754,17 +1316,17 @@ function Booking() {
                 <button
                   type="button"
                   className="booking__new"
-                  onClick={handleNewBooking}
+                  onClick={
+                    handleNewBooking
+                  }
                 >
                   BOOK ANOTHER SLOT
                 </button>
 
               </div>
-
             )}
 
           </form>
-
         </div>
 
         {/* =========================
@@ -775,6 +1337,7 @@ function Booking() {
 
           <div>
             <CheckCircle2 size={15} />
+
             <span>
               INSTANT SLOT CHECK
             </span>
@@ -782,6 +1345,7 @@ function Booking() {
 
           <div>
             <ShieldCheck size={15} />
+
             <span>
               SAFE BOOKING
             </span>
@@ -789,6 +1353,7 @@ function Booking() {
 
           <div>
             <MessageCircle size={15} />
+
             <span>
               WHATSAPP CONFIRMATION
             </span>

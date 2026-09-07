@@ -16,6 +16,11 @@ const VALID_VENUES = ['box-cricket', 'ground'];
 
 /* =========================
    CREATE BOOKING
+   PAYMENT-FIRST FLOW
+
+   Booking is created as PENDING.
+   It becomes CONFIRMED only after
+   successful Razorpay verification.
 ========================= */
 
 export const createBooking = async (
@@ -71,6 +76,10 @@ export const createBooking = async (
       });
     }
 
+    /* =========================
+       CHECK CONFIRMED SLOT
+    ========================= */
+
     const existingBooking =
       await Booking.findOne({
         venue,
@@ -87,6 +96,10 @@ export const createBooking = async (
       });
     }
 
+    /* =========================
+       CREATE PENDING BOOKING
+    ========================= */
+
     const booking =
       await Booking.create({
         bookingId: generateBookingId(),
@@ -95,12 +108,24 @@ export const createBooking = async (
         slot,
         name: cleanName,
         phone: cleanPhone,
-        status: 'confirmed',
+
+        status: 'pending',
+
+        paymentStatus: 'pending',
+        paymentOrderId: null,
+        paymentId: null,
+
+        // Testing amount
+        amount: 1,
+        currency: 'INR',
+
+        paidAt: null,
       });
 
     return res.status(201).json({
       success: true,
-      message: 'Booking created successfully.',
+      message:
+        'Booking reference created. Complete payment to confirm your slot.',
       booking,
     });
   } catch (error) {
@@ -127,6 +152,7 @@ export const createBooking = async (
 
 /* =========================
    GET BOOKINGS BY DATE
+   ONLY CONFIRMED BOOKINGS
 ========================= */
 
 export const getBookingsByDate = async (
@@ -162,8 +188,6 @@ export const getBookingsByDate = async (
       status: 'confirmed',
     };
 
-    // If venue is provided, return bookings
-    // only for that venue.
     if (venue) {
       query.venue = venue;
     }
@@ -193,6 +217,7 @@ export const getBookingsByDate = async (
 
 /* =========================
    GET ALL BOOKINGS
+   ADMIN
 ========================= */
 
 export const getAllBookings = async (
@@ -227,6 +252,7 @@ export const getAllBookings = async (
 
 /* =========================
    CANCEL BOOKING
+   ADMIN
 ========================= */
 
 export const cancelBooking = async (

@@ -7,6 +7,7 @@ import connectDB from './config/db.js';
 
 import authRoutes from './routes/authRoutes.js';
 import bookingRoutes from './routes/bookingRoutes.js';
+import paymentRoutes from './routes/paymentRoutes.js';
 
 dotenv.config();
 
@@ -115,6 +116,15 @@ app.use(
 app.use(
   '/api/bookings',
   bookingRoutes
+);
+
+/* =========================
+   PAYMENT ROUTES
+========================= */
+
+app.use(
+  '/api/payments',
+  paymentRoutes
 );
 
 /* =========================
